@@ -3,97 +3,69 @@
 use warnings;
 use strict;
 use File::Find;
+use Getopt::Long;
+Getopt::Long::Configure("posix_default",
+                        "gnu_compat",
+                        "bundling");
 
-
 # variables
 my $src;
-my $binDir  = ".";
-my $objsDir = "objs";
-my @cc      = ("clang",
-               "gcc");
-my @cxx     = ("clang++",
-               "g++");
-my $dcc     = "g++";
+my $binDir;
+my $objsDir;
+my @cc;
+my @cxx;
+my $dcc;
 my @cflags;
 my @cxxflags;
 my @libs;
 my @pkgs;
-my $name    = "a.out";
-my $O       = "-O2";
+my $name;
+my $O;
 my $echo    = 1;
 my $quiet   = 0;
 my $stdout  = 0;
 
-if ( -d "src" ) {
-    $src = "src";
-} else {
-    $src = ".";
-}
 
-
+
 my $file;
 # config load
 if ( -e "vfnmake" ) {
     open(my $file, '<', "vfnmake");
     while (my $line = <$file>) {
+        my $line2   = <$file>;
+        $line2      =~ s/^\s*//;
         if ($line eq "libs:\n") {
-            $line = <$file>;
-            $line =~ s/^\s*//;
-            @libs = split /\s+/, $line;
+            @libs = split /\s+/, $line2;
         } elsif ($line eq "pkgs:\n") {
-            $line = <$file>;
-            $line =~ s/^\s*//;
-            @pkgs = split /\s+/, $line;
+            @pkgs = split /\s+/, $line2;
         } elsif ($line eq "cflags:\n") {
-            $line    = <$file>;
-            $line    =~ s/^\s*//;
-            @cflags  = split /\s+/, $line;
+            @cflags   = split /\s+/, $line2;
         } elsif ($line eq "cxxflags:\n") {
-            $line    = <$file>;
-            $line    =~ s/^\s*//;
-            @cxxflags  = split /\s+/, $line;
+            @cxxflags = split /\s+/, $line2;
         } elsif ($line eq "O:\n") {
-            $line = <$file>;
-            $line =~ s/^\s*//;
-            chomp ($O = $line);
+            chomp ($O = $line2);
         } elsif ($line eq "src_directory:\n") {
-            $line = <$file>;
-            $line =~ s/^\s*//;
-            chomp ($src = $line);
+            chomp ($src = $line2);
         } elsif ($line eq "bin_directory:\n") {
-            $line = <$file>;
-            $line =~ s/^\s*//;
-            chomp ($binDir = $line);
+            chomp ($binDir = $line2);
         } elsif ($line eq "objs_directory:\n") {
-            $line = <$file>;
-            $line =~ s/^\s*//;
-            chomp ($objsDir = $line);
+            chomp ($objsDir = $line2);
         } elsif ($line eq "cc:\n") {
-            $line  = <$file>;
-            $line  =~ s/^\s*//;
-            @cc    = split /\s+/, $line;
+            @cc  = split /\s+/, $line2;
         } elsif ($line eq "cxx:\n") {
-            $line  = <$file>;
-            $line  =~ s/^\s*//;
-            @cxx   = split /\s+/, $line;
-        } elsif ($line eq "debug cc:\n") {
-            $line  = <$file>;
-            $line  =~ s/^\s*//;
-            chomp ($dcc = $line);
+            @cxx = split /\s+/, $line2;
+        } elsif ($line eq "debug_cc:\n") {
+            chomp ($dcc = $line2);
         } elsif ($line eq "echo:\n") {
-            $line  = <$file>;
-            $line  =~ s/^\s*//;
-            chomp ($echo = $line);
+            chomp ($echo = $line2);
         } elsif ($line eq "name:\n") {
-            $line  = <$file>;
-            $line  =~ s/^\s*//;
-            chomp ($name = $line);
+            chomp ($name = $line2);
         }
     }
     close($file);
 }
 
-
+
 sub addToArray {
     my ($value, $array) = @_;
     push @$array, $value unless grep {$_ eq $value} @$array;
@@ -102,162 +74,76 @@ sub removeFromArray {
     my ($value, $array) = @_;
     @$array = grep {$_ ne $value} @$array;
 }
+
 # argument parsing
-while (@ARGV) {
-    # add a lib
-    if ($ARGV[0] eq "--lib+" || $ARGV[0] eq "-l+") {
-        shift;
-        addToArray($ARGV[0], \@libs);
-        shift;
-    }
-    # remove a lib
-    elsif ($ARGV[0] eq "--lib-" || $ARGV[0] eq "-l-") {
-        shift;
-        removeFromArray($ARGV[0], \@libs);
-        shift;
-    }
-    # overwrite the list of libraries
-    elsif ($ARGV[0] eq "--libs") {
-        shift;
-        @libs = split /\s*,\s*/, $ARGV[0];
-        shift;
-    }
-    # pkg-config add
-    elsif ($ARGV[0] eq "--pkg+") {
-        shift;
-        addToArray($ARGV[0], \@pkgs);
-        shift;
-    }
-    # pkg-config remove
-    elsif ($ARGV[0] eq "--pkg+") {
-        shift;
-        removeFromArray($ARGV[0], \@pkgs);
-        shift;
-    }
-    # pkg-config list
-    elsif ($ARGV[0] eq "--pkgs") {
-        shift;
-        @pkgs = split /\s*,\s*/, $ARGV[0];
-        shift;
-    }
-    # optimization
-    elsif ($ARGV[0] =~ /^-O.$/) {
-        $O = $ARGV[0];
-        shift;
-    }
-    # add a compilation flag
-    elsif ($ARGV[0] eq "--cflag+" || $ARGV[0] eq "-c+") {
-        shift;
-        addToArray($ARGV[0], \@cflags);
-        shift;
-    }
-    # remove a compilation flag
-    elsif ($ARGV[0] eq "--cflag-" || $ARGV[0] eq "-c-") {
-        shift;
-        removeFromArray($ARGV[0], \@cflags);
-        shift;
-    }
-    # overwrite the compilation flag list
-    elsif ($ARGV[0] eq "--cflags") {
-        shift;
-        @cflags = split /\s*,\s*/, $ARGV[0];
-        shift;
-    }
-    # add a C++ compilation flag
-    elsif ($ARGV[0] eq "--cxxflag+" || $ARGV[0] eq "-C+") {
-        shift;
-        addToArray($ARGV[0], \@cxxflags);
-        shift;
-    }
-    # remove a C++ compilation flag
-    elsif ($ARGV[0] eq "--cxxflag-" || $ARGV[0] eq "-C-") {
-        shift;
-        removeFromArray($ARGV[0], \@cxxflags);
-        shift;
-    }
-    # overwrite the C++ compilation flag list
-    elsif ($ARGV[0] eq "--cxxflags") {
-        shift;
-        @cxxflags = split /\s*,\s*/, $ARGV[0];
-        shift;
-    }
-    elsif ($ARGV[0] eq "--echo" || $ARGV[0] eq "-e") {
-        $echo = 1;
-        shift;
-    }
-    elsif ($ARGV[0] eq "--no-echo" || $ARGV[0] eq "-ne") {
-        $echo = 0;
-        shift;
-    }
-    # specify the src directory
-    elsif ($ARGV[0] eq "--src") {
-        shift;
-        $src = $ARGV[0];
-        shift;
-    }
-    # specify the bin directory
-    elsif ($ARGV[0] eq "--bin") {
-        shift;
-        $binDir = $ARGV[0];
-        shift;
-    }
-    # specify the objs directory
-    elsif ($ARGV[0] eq "--objs") {
-        shift;
-        $objsDir = $ARGV[0];
-        shift;
-    }
-    # C compiler list
-    elsif ($ARGV[0] eq "--cc") {
-        shift;
-        @cc = split /\s*,\s*/, $ARGV[0];
-        shift;
-    }
-    # C++ compiler list
-    elsif ($ARGV[0] eq "--cxx") {
-        shift;
-        @cxx = split /\s*,\s*/, $ARGV[0];
-        shift;
-    }
-    # debugging compiler
-    elsif ($ARGV[0] eq "--dcc") {
-        shift;
-        $dcc = $ARGV[0];
-        shift;
-    }
-    # use only gcc
-    elsif ($ARGV[0] eq "--gcc") {
-        @cc = ("gcc");
-        @cxx = ("g++");
-        $dcc = "g++";
-        shift;
-    }
-    # use c++0x standard for C++
-    elsif ($ARGV[0] eq "--c++0x") {
-        addToArray("-std=c++0x", \@cxxflags);
-        @cc = ("gcc");
-        @cxx = ("g++");
-        $dcc = "g++";
-        shift;
-    }
-    # change the name of the executable file
-    elsif ($ARGV[0] eq "--name") {
-        shift;
-        $name = $ARGV[0];
-        shift;
-    }
-    # quiet mode
-    elsif ($ARGV[0] eq "--quiet" || $ARGV[0] eq "-q") {
-        shift;
-        $quiet = 1;
-        shift;
-    }
-    # stdout mode
-    elsif ($ARGV[0] eq "--stdout") {
-        $stdout = 1;
-        shift;
+GetOptions(
+           'cc=s'          => sub { @cc  = split /\s*,\s*/, $_[1] },
+           'cxx=s'         => sub { @cxx = split /\s*,\s*/, $_[1] },
+           'dcc=s'         => \$dcc,
+
+           'src=s'         => \$src,
+           'bin=s'         => \$binDir,
+           'objs=s'        => \$objsDir,
+           'name=s'        => \$name,
+
+           'cflags=s'      => sub { @cflags   = split /\s*,\s*/, $_[1]  },
+           'cflag|c=s'     => sub {      addToArray($_[1], \@cflags)    },
+           'Cflag|C=s'     => sub { removeFromArray($_[1], \@cflags)    },
+
+           'cxxflags=s'    => sub { @cxxflags = split /\s*,\s*/, $_[1]  },
+           'cxxflag|x=s'   => sub {      addToArray($_[1], \@cxxflags)  },
+           'Cxxflag|X=s'   => sub { removeFromArray($_[1], \@cxxflags)  },
+
+           'pkgs=s'        => sub { @pkgs     = split /\s*,\s*/, $_[1]  },
+           'pkg|p=s'       => sub {      addToArray($_[1], \@pkgs)      },
+           'Pkg|P=s'       => sub { removeFromArray($_[1], \@pkgs)      },
+
+           'libs=s'        => sub { @libs     = split /\s*,\s*/, $_[1]  },
+           'lib|l=s'       => sub {      addToArray($_[1], \@libs)      },
+           'Lib|L=s'       => sub { removeFromArray($_[1], \@libs)      },
+
+           'O=s'           => \$O,
+           'echo|e!'       => \$echo,
+           'quiet|q'       => \$quiet,
+           'stdout'        => \$stdout,
+           'cpp0x'         => sub { addToArray("-std=c++0x", \@cxxflags);
+                                    @cc    = ("gcc");
+                                    @cxx   = ("g++");
+                                    $dcc   =  "g++"},
+           'gcc'           => sub { @cc    = ("gcc");
+                                    @cxx   = ("g++");
+                                    $dcc   =  "g++"},
+           'reset'         => sub { @cc    = ("clang"  , "gcc");
+                                    @cxx   = ("clang++", "g++");
+                                    $dcc   =  "g++";
+                                    $echo  = 1;
+                                    removeFromArray("-std=c++0x", \@cxxflags);
+                                    if ( -d "src" ) {
+                                        $src = "src";
+                                    } else {
+                                        $src = ".";
+                                    }
+                                    $binDir  ||= ".";
+                                    $objsDir ||= "objs"; },
+          ) or die "\n";
+
+
+# default values
+unless (defined($src)) {
+    if ( -d "src" ) {
+        $src = "src";
+    } else {
+        $src = ".";
     }
 }
+$binDir  ||= ".";
+$objsDir ||= "objs";
+@cc        = ("clang",   "gcc") unless @cc;
+@cxx       = ("clang++", "g++") unless @cxx;
+$dcc     ||= "g++";
+$name    ||= "a.out";
+$O       ||= "-O2";
+
 
 my @CFiles;
 find( sub { push @CFiles, "$File::Find::name" if /\.c$/ }, $src);
@@ -282,12 +168,12 @@ if (@pkgs) {
 }
 chop $lflags;
 
-$src      =~ s#/$##;
-$binDir   =~ s#/$##;
-$objsDir  =~ s#/$##;
+$src      =~ s|/$||;
+$binDir   =~ s|/$||;
+$objsDir  =~ s|/$||;
 
 
-
+
 # choose the first existing compiler from the list
 my $cc;
 my $cxx;
@@ -320,7 +206,7 @@ my $linker;
     }
 }
 
-
+
 # write the macros
 my $make = "CC=$cc
 CXX=$cxx
@@ -343,7 +229,7 @@ $binDir/$name: \$(OBJS)
 	@ $linker \$(LFLAGS) \$(OBJS) -o \"$binDir/$name\"\n";
 }
 
-
+
 # detecting the dependencies
 foreach my $CFile (@CFiles) {
     my $deps = `gcc -MM "$CFile"`;    # some compilers have problems sometimes, so I've hardcoded gcc here
@@ -405,63 +291,34 @@ if ($stdout) {
     close($file);
 }
 
-
+
 # config save
-
 my $config;
+my @config = (
+              [ cc              => \@cc       ],
+              [ cxx             => \@cxx      ],
+              [ debug_cc        => $dcc       ],
+              [ libs            => \@libs     ],
+              [ pkgs            => \@pkgs     ],
+              [ O               => $O         ],
+              [ cflags          => \@cflags   ],
+              [ cxxflags        => \@cxxflags ],
+              [ name            => $name      ],
+              [ src_directort   => $src       ],
+              [ bin_directory   => $binDir    ],
+              [ objs_directory  => $objsDir   ],
+              [ echo            => $echo      ],
+             );
 
-# cc
-$config = "cc:\n\t";
-$config .= join(' ', @cc);
-$config .= "\n";
-
-# cxx
-$config .= "cxx:\n\t";
-$config .= join(' ', @cxx);
-$config .= "\n";
-
-$config .= "debug cc:
-\t$dcc\n";
-
-# libs
-$config .= "libs:\n\t";
-$config .= join(' ', @libs);
-$config .= "\n";
-
-# pkg-config
-$config .= "pkgs:\n\t";
-$config .= join(' ', @pkgs);
-$config .= "\n";
-
-# optimization
-$config .= "O:
-\t$O\n";
-
-# cflags
-$config .= "cflags:\n\t";
-$config .= join(' ', @cflags);
-$config .= "\n";
-
-# cxxflags
-$config .= "cxxflags:\n\t";
-$config .= join(' ', @cxxflags);
-$config .= "\n";
-
-#name
-$config .= "name:
-\t$name\n";
-
-# dirs
-$config .= "src_directory:
-\t$src\n";
-$config .= "bin_directory:
-\t$binDir\n";
-$config .= "objs_directory:
-\t$objsDir\n";
-
-# echo
-$config .= "echo:
-\t$echo\n";
+for my $p (@config) {
+    my $str;
+    if (ref $p->[1] eq 'ARRAY') {
+        $str = join(' ', @{$p->[1]});
+    } else {
+        $str = $p->[1];
+    }
+    $config .= "$p->[0]:\n\t$str\n";
+}
 
 open($file, '>', "vfnmake") or die;
 print $file "$config";
