@@ -1,0 +1,194 @@
+=encoding utf-8
+
+=head1 NAME
+
+vfnmake - a relatively simple Makefile generator
+
+=head1 SYNOPSIS
+
+B<vfnmake> [ options ]
+
+=head1 DESCRIPTION
+
+vfnmake works on fire-and-forget basis with as less configuration as possible. It does not try to compete with CMake or Autotools. I wrote it because writting Makefiles, while not difficult, can be really tedious even for the simple projects.
+
+To generate a Makefile for a program not using any external libraries just type:
+
+S<        B<vfnmake>>
+
+If you need to link for example ncurses, use this:
+
+S<        B<vfnmake --lib=ncurses>>
+
+For a complete list of arguments, see below.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--name> I<name>
+
+Specify the name of the executable file. Default: a.out
+
+=item B<--src> I<dir>
+
+Specify the directory with the source. Default: src/ or ./
+
+=item B<--objs> I<dir>
+
+Specify the directory for the *.o files. Default: objs/
+
+=item B<--bin> I<dir>
+
+Specify the directory for the executable file. Default: ./
+
+=item B<--cc> I<comma_separated_list_of_compilers>
+
+Comma separated list of used C compilers. The first one available is used. Default: clang, gcc
+
+=item B<--cxx> I<comma_separated_list_of_compilers>
+
+Comma separated list of used C++ compilers. The first one available is used. Default: clang++, g++
+
+=item B<--dcc> I<compiler>
+
+A compiler for 'make debug'. Default: g++
+
+=item B<-c> I<flag>, B<--cflag> I<flag>		(add)
+
+=item B<-C> I<flag>, B<--Cflag> I<flag>		(remove)
+
+Add/remove a compilation flag.
+
+=item B<--cflags> I<comma_separated_list_of_flags>
+
+Overwrite the previous cflags.
+
+=item B<-x> I<flag>, B<--cxxflag> I<flag>		(add)
+
+=item B<-X> I<flag>, B<--Cxxflag> I<flag>		(remove)
+
+Add/remove a C++ compilation flag. These are used only in C++ IN ADDITION to the regular cflags.
+
+=item B<--cxxflags> I<comma_separated_list_of_flags>
+
+Overwrite the previous cxxflags.
+
+=item B<-O> I<n>
+
+Set the optimization level.
+
+=item B<-l> I<library>, B<--lib> I<library>	(add)
+
+=item B<-L> I<library>, B<--Lib> I<library>	(remove)
+
+Add/remove a library to link.
+
+=item B<--libs> I<comma_separated_list_of_libraries>
+
+Overwrite the previous libraries.
+
+=item B<-p> I<package>, B<--pkg> I<package>			(add)
+
+=item B<-P> I<package>, B<--Pkg> I<package>			(remove)
+
+Add/remove a package for pkg-config.
+
+=item B<--pkgs> I<comma_separated_list_of_packages>
+
+Overwrite the previous packages.
+
+=item B<--noe>, B<--no-echo>
+
+=item S<   B<-e>>,    B<--echo>
+
+Print the executed commands or not. Default: --echo
+
+=item B<--gcc>
+
+Use only gcc/g++.
+
+=item B<--cpp0x>
+
+Use c++0x standard for C++ and switch to gcc/g++.
+
+=item B<-q>, B<--quiet>
+
+Do not print the used config.
+
+=item B<--stdout>
+
+Print the Makefile to the stdout instead of saving in the file so it can be piped directly to make ("./configure.pl --stdout | make -f -").
+
+=item B<--reset>
+
+Set the default compiler lists and directories, turns on echo and disables c++0x mode.
+
+=back
+
+=head1 MAKE TARGETS
+
+=over 12
+
+=item C<all>
+
+default options
+
+=item C<debug (d)>
+
+compile with -g flag, O0 optimization and DEBUG macro
+
+=item C<clean (c)>
+
+delete all compilation results
+
+=item C<fresh (f)>
+
+force full recompilation (equivalent of 'make clean && make')
+
+=item C<run (r)>
+
+compile and run
+
+=back
+
+=head1 EDITING THE CONFIG FILE
+
+The config file will be generated with all available options on the first run. It has the following syntax:
+
+    OPTION:
+    SOME_SPACES/TABS VALUE(s)
+    ANOTHER OPTION:...
+
+If you want, you can edit it, although it's not necessary. The config file is rewritten on each run so don't bother about formatting it.
+
+To reset an option, delete BOTH of its lines. If you want the value to be empty, you must leave an empty line below the option's name. The program will go crazy otherwise.
+
+=head1 AUTHOR
+
+vfnmake was written by Wojciech 'Vifon' Siewierski.
+
+=head1 ACKNOWLEDGEMENTS
+
+Thanks to Tadeusz Sośnierz for some advices and fixes.
+
+=head1 SEE ALSO
+
+B<make>(1)
+
+=head1 COPYRIGHT
+
+Copyright (C) 2011  Wojciech Siewierski
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.

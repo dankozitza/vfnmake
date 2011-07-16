@@ -150,6 +150,8 @@ find( sub { push @CFiles, "$File::Find::name" if /\.c$/ }, $src);
 my @CPPFiles;
 find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/ }, $src);
 
+die "No C/C++ files detected\n" if !@CFiles && !@CPPFiles;
+
 my @objs =  (@CFiles, @CPPFiles);
 s/^$src(.*)\.c(pp)?/$objsDir$1.o/ foreach @objs;
 my $objs =  join(' ', @objs);
