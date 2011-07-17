@@ -6,7 +6,8 @@ use File::Find;
 use Getopt::Long;
 Getopt::Long::Configure("posix_default",
                         "gnu_compat",
-                        "bundling");
+                        "bundling",
+                        "no_ignore_case");
 
 # variables
 my $src;
@@ -30,7 +31,7 @@ my $stdout  = 0;
 my $file;
 # config load
 if ( -e "vfnmake" ) {
-    open(my $file, '<', "vfnmake");
+    open($file, '<', "vfnmake");
     while (my $line = <$file>) {
         my $line2   = <$file>;
         $line2      =~ s/^\s*//;
@@ -123,8 +124,8 @@ GetOptions(
                                     } else {
                                         $src = ".";
                                     }
-                                    $binDir  ||= ".";
-                                    $objsDir ||= "objs"; },
+                                    $binDir  = ".";
+                                    $objsDir = "objs"; },
           ) or die "\n";
 
 
@@ -146,7 +147,7 @@ $O       ||= "-O2";
 
 
 my @CFiles;
-find( sub { push @CFiles, "$File::Find::name" if /\.c$/ }, $src);
+find( sub { push @CFiles  , "$File::Find::name" if /\.c$/ }  , $src);
 my @CPPFiles;
 find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/ }, $src);
 
