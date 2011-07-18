@@ -4,10 +4,7 @@ use warnings;
 use strict;
 use File::Find;
 use Getopt::Long;
-Getopt::Long::Configure("posix_default",
-                        "gnu_compat",
-                        "bundling",
-                        "no_ignore_case");
+Getopt::Long::Configure("posix_default","gnu_compat","bundling","no_ignore_case");
 
 # variables
 my $src;
