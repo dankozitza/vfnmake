@@ -29,8 +29,8 @@ my $stdout  = 0;
 
 my $file;
 # config load
-if ( -e "vfnmake" ) {
-    open($file, '<', "vfnmake");
+if ( -e "vfnmake.conf" ) {
+    open($file, '<', "vfnmake.conf");
     while (my $line = <$file>) {
         my $line2   = <$file>;
         $line2      =~ s/^\s*//;
@@ -289,7 +289,7 @@ debug: all
 check-syntax:
 	g++ \$(CXXFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)
 
-.PHONY: all clean fresh debug run check-syntax";
+.PHONY: all clean fresh debug run check-syntax\n";
 
 if ($stdout) {
     print "$make";
@@ -312,7 +312,7 @@ my @config = (
               [ cflags          => \@cflags   ],
               [ cxxflags        => \@cxxflags ],
               [ name            => $name      ],
-              [ src_directort   => $src       ],
+              [ src_directory   => $src       ],
               [ bin_directory   => $binDir    ],
               [ objs_directory  => $objsDir   ],
               [ echo            => $echo      ],
@@ -328,7 +328,7 @@ for my $p (@config) {
     $config .= "$p->[0]:\n\t$str\n";
 }
 
-open($file, '>', "vfnmake") or die;
+open($file, '>', "vfnmake.conf") or die;
 print $file "$config";
 close($file);
 print "$config" unless $quiet or $stdout;
