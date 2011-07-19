@@ -1,10 +1,12 @@
 #!/usr/bin/env perl
 
-use warnings;
 use strict;
 use File::Find;
 use Getopt::Long;
-Getopt::Long::Configure("posix_default","gnu_compat","bundling","no_ignore_case");
+Getopt::Long::Configure("posix_default",
+                        "gnu_compat",
+                        "bundling",
+                        "no_ignore_case");
 
 # variables
 my $src;
@@ -144,9 +146,9 @@ $O       ||= "-O2";
 
 
 my @CFiles;
-find( sub { push @CFiles  , "$File::Find::name" if /\.c$/ }  , $src);
+find( sub { push @CFiles  , "$File::Find::name" if /\.c$/   and !/^\.?#/ }  , $src);
 my @CPPFiles;
-find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/ }, $src);
+find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/ and !/^\.?#/ }, $src);
 
 die "No C/C++ files detected\n" if !@CFiles && !@CPPFiles;
 
@@ -281,7 +283,13 @@ debug: CFLAGS += -DDEBUG -g
 debug: O=-O0
 debug: CC=$dcc
 debug: CXX=$dcc
-debug: all";
+debug: all
+
+# Emacs flymake-mode
+check-syntax:
+	g++ \$(CXXFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)
+
+.PHONY: all clean fresh debug run check-syntax";
 
 if ($stdout) {
     print "$make";
