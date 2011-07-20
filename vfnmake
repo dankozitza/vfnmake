@@ -21,59 +21,13 @@ my @libs;
 my @pkgs;
 my $name;
 my $O;
-my $echo    = 1;
-my $quiet   = 0;
-my $stdout  = 0;
-
-
+my $echo;
+my $quiet;
+my $stdout;
+my $configName = "vfnmake.conf";
 
 my $file;
-# config load
-if ( -e "vfnmake.conf" ) {
-    open($file, '<', "vfnmake.conf");
-    while (my $line = <$file>) {
-        my $line2   = <$file>;
-        $line2      =~ s/^\s*//;
-        if ($line eq "libs:\n") {
-            @libs = split /\s+/, $line2;
-        } elsif ($line eq "pkgs:\n") {
-            @pkgs = split /\s+/, $line2;
-        } elsif ($line eq "cflags:\n") {
-            @cflags   = split /\s+/, $line2;
-        } elsif ($line eq "cxxflags:\n") {
-            @cxxflags = split /\s+/, $line2;
-        } elsif ($line eq "O:\n") {
-            chomp ($O = $line2);
-        } elsif ($line eq "src_directory:\n") {
-            chomp ($src = $line2);
-        } elsif ($line eq "bin_directory:\n") {
-            chomp ($binDir = $line2);
-        } elsif ($line eq "objs_directory:\n") {
-            chomp ($objsDir = $line2);
-        } elsif ($line eq "cc:\n") {
-            @cc  = split /\s+/, $line2;
-        } elsif ($line eq "cxx:\n") {
-            @cxx = split /\s+/, $line2;
-        } elsif ($line eq "debug_cc:\n") {
-            chomp ($dcc = $line2);
-        } elsif ($line eq "echo:\n") {
-            chomp ($echo = $line2);
-        } elsif ($line eq "name:\n") {
-            chomp ($name = $line2);
-        }
-    }
-    close($file);
-}
 
-
-sub addToArray {
-    my ($value, $array) = @_;
-    push @$array, $value unless grep {$_ eq $value} @$array;
-}
-sub removeFromArray {
-    my ($value, $array) = @_;
-    @$array = grep {$_ ne $value} @$array;
-}
 
 # argument parsing
 GetOptions(
@@ -125,7 +79,47 @@ GetOptions(
                                     }
                                     $binDir  = ".";
                                     $objsDir = "objs"; },
+           'file|f=s'      => \$configName,
+           'chdir|C=s'     => sub { chdir $_[1] },
           ) or die "\n";
+
+
+# config load
+if ( -e $configName ) {
+    open($file, '<', $configName);
+    while (my $line = <$file>) {
+        my $line2   = <$file>;
+        $line2      =~ s/^\s*//;
+        if ($line eq "libs:\n") {
+            @libs = split /\s+/, $line2 unless @libs;
+        } elsif ($line eq "pkgs:\n") {
+            @pkgs = split /\s+/, $line2 unless @pkgs;
+        } elsif ($line eq "cflags:\n") {
+            @cflags   = split /\s+/, $line2 unless @cflags;
+        } elsif ($line eq "cxxflags:\n") {
+            @cxxflags = split /\s+/, $line2 unless @cxxflags;
+        } elsif ($line eq "O:\n") {
+            chomp ($O = $line2) unless defined($O);
+        } elsif ($line eq "src_directory:\n") {
+            chomp ($src = $line2) unless defined($src);
+        } elsif ($line eq "bin_directory:\n") {
+            chomp ($binDir = $line2) unless defined($binDir);
+        } elsif ($line eq "objs_directory:\n") {
+            chomp ($objsDir = $line2) unless defined($objsDir);
+        } elsif ($line eq "cc:\n") {
+            @cc  = split /\s+/, $line2 unless @cc;
+        } elsif ($line eq "cxx:\n") {
+            @cxx = split /\s+/, $line2 unless @cxx;
+        } elsif ($line eq "debug_cc:\n") {
+            chomp ($dcc = $line2) unless defined($dcc);
+        } elsif ($line eq "echo:\n") {
+            chomp ($echo = $line2) unless defined($echo);
+        } elsif ($line eq "name:\n") {
+            chomp ($name = $line2) unless defined($name);
+        }
+    }
+    close($file);
+}
 
 
 # default values
@@ -143,6 +137,10 @@ $objsDir ||= "objs";
 $dcc     ||= "g++";
 $name    ||= "a.out";
 $O       ||= "-O2";
+$echo    //= 1;
+$quiet   //= 0;
+$stdout  //= 0;
+
 
 
 my @CFiles;
@@ -218,6 +216,7 @@ O=$O
 LFLAGS=$lflags
 OBJS=$objs
 
+.PHONY: all
 all: objs $name";
 
 if ($echo) {
@@ -266,18 +265,22 @@ $objsDir/$deps
 $make .= "\n
 objs:
 	@ mkdir \"$objsDir\"
+.PHONY: c clean
 c: clean
 clean:
 	@ if [ -d \"$objsDir\" ]; then rm -r \"$objsDir\"; fi
 	@ rm -f \"$binDir/$name\"
 	@ echo \"    CLEAN\"
+.PHONY: f fresh
 f: fresh
 fresh: clean
-	@ make all
+	@ make all --no-print-directory
+.PHONY: r run
 r: run
 run: all
 	@ ./$binDir/$name
 
+.PHONY: d debug
 d: debug
 debug: CFLAGS += -DDEBUG -g
 debug: O=-O0
@@ -286,10 +289,9 @@ debug: CXX=$dcc
 debug: all
 
 # Emacs flymake-mode
+.PHONY: check-syntax
 check-syntax:
-	g++ \$(CXXFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)
-
-.PHONY: all clean fresh debug run check-syntax\n";
+	g++ \$(CXXFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)\n";
 
 if ($stdout) {
     print "$make";
@@ -328,7 +330,17 @@ for my $p (@config) {
     $config .= "$p->[0]:\n\t$str\n";
 }
 
-open($file, '>', "vfnmake.conf") or die;
+open($file, '>', $configName) or die;
 print $file "$config";
 close($file);
 print "$config" unless $quiet or $stdout;
+
+
+sub addToArray {
+    my ($value, $array) = @_;
+    push @$array, $value unless grep {$_ eq $value} @$array;
+}
+sub removeFromArray {
+    my ($value, $array) = @_;
+    @$array = grep {$_ ne $value} @$array;
+}

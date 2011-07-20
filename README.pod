@@ -110,7 +110,7 @@ Use only gcc/g++.
 
 =item B<--cpp0x>
 
-Use c++0x standard for C++ and switch to gcc/g++.
+Use c++0x standard and switch to gcc/g++.
 
 =item B<-q>, B<--quiet>
 
@@ -118,11 +118,19 @@ Do not print the used config.
 
 =item B<--stdout>
 
-Print the Makefile to the stdout instead of saving in the file so it can be piped directly to make ("./configure.pl --stdout | make -f -").
+Print the Makefile to the stdout instead of saving in the file so it can be piped directly to make ("vfnmake --stdout | make -f -").
+
+=item B<-f> I<file>, B<--file> I<file>
+
+Use I<file> instead of vfnmake.conf as the config file. Default: vfnmake.conf
+
+=item B<-C> I<dir>, B<--chdir> I<dir>
+
+Use I<dir> as the working directory.
 
 =item B<--reset>
 
-Set the default compiler lists and directories, turns on echo and disables c++0x mode.
+Set the default compiler lists and directories, turn on echo and disable c++0x mode.
 
 =back
 
@@ -130,23 +138,23 @@ Set the default compiler lists and directories, turns on echo and disables c++0x
 
 =over 12
 
-=item C<all>
+=item I<all>
 
 default options
 
-=item C<debug (d)>
+=item I<debug (d)>
 
 compile with -g flag, O0 optimization and DEBUG macro
 
-=item C<clean (c)>
+=item I<clean (c)>
 
 delete all compilation results
 
-=item C<fresh (f)>
+=item I<fresh (f)>
 
 force full recompilation (equivalent of 'make clean && make')
 
-=item C<run (r)>
+=item I<run (r)>
 
 compile and run
 
