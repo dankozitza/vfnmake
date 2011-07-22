@@ -6,7 +6,7 @@ vfnmake - a relatively simple Makefile generator
 
 =head1 SYNOPSIS
 
-B<vfnmake> [ options ]
+B<vfnmake> [ B<-f> I<config_file> ] [ B<-d> I<directory> ] [ options ]
 
 =head1 DESCRIPTION
 
@@ -123,10 +123,12 @@ Print the Makefile to the stdout instead of saving in the file so it can be pipe
 =item B<-f> I<file>, B<--file> I<file>
 
 Use I<file> instead of vfnmake.conf as the config file. Default: vfnmake.conf
+MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
-=item B<-C> I<dir>, B<--chdir> I<dir>
+=item B<-d> I<dir>, B<--chdir> I<dir>
 
 Use I<dir> as the working directory.
+MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
 =item B<--reset>
 

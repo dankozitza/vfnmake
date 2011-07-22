@@ -6,7 +6,8 @@ use Getopt::Long;
 Getopt::Long::Configure("posix_default",
                         "gnu_compat",
                         "bundling",
-                        "no_ignore_case");
+                        "no_ignore_case",
+                        "no_auto_abbrev");
 
 # variables
 my $src;
@@ -28,6 +29,55 @@ my $configName = "vfnmake.conf";
 
 my $file;
 
+
+while ($ARGV[0] eq '-f' || $ARGV[0] eq '--file' || $ARGV[0] eq '-d' || $ARGV[0] eq '--chdir') {
+    if ($ARGV[0] eq '-f' || $ARGV[0] eq '--file') {
+        shift;
+        $configName = $ARGV[0];
+        shift;
+    } elsif ($ARGV[0] eq '-d' || $ARGV[0] eq '--chdir') {
+        shift;
+        chdir $ARGV[0];
+        shift;
+    }
+}
+
+# config load
+if ( -f $configName ) {
+    open($file, '<', $configName);
+    while (my $line = <$file>) {
+        my $line2   = <$file>;
+        $line2      =~ s/^\s*//;
+        if ($line eq "libs:\n") {
+            @libs = split /\s+/, $line2 unless @libs;
+        } elsif ($line eq "pkgs:\n") {
+            @pkgs = split /\s+/, $line2 unless @pkgs;
+        } elsif ($line eq "cflags:\n") {
+            @cflags   = split /\s+/, $line2 unless @cflags;
+        } elsif ($line eq "cxxflags:\n") {
+            @cxxflags = split /\s+/, $line2 unless @cxxflags;
+        } elsif ($line eq "O:\n") {
+            chomp ($O = $line2) unless defined($O);
+        } elsif ($line eq "src_directory:\n") {
+            chomp ($src = $line2) unless defined($src);
+        } elsif ($line eq "bin_directory:\n") {
+            chomp ($binDir = $line2) unless defined($binDir);
+        } elsif ($line eq "objs_directory:\n") {
+            chomp ($objsDir = $line2) unless defined($objsDir);
+        } elsif ($line eq "cc:\n") {
+            @cc  = split /\s+/, $line2 unless @cc;
+        } elsif ($line eq "cxx:\n") {
+            @cxx = split /\s+/, $line2 unless @cxx;
+        } elsif ($line eq "debug_cc:\n") {
+            chomp ($dcc = $line2) unless defined($dcc);
+        } elsif ($line eq "echo:\n") {
+            chomp ($echo = $line2) unless defined($echo);
+        } elsif ($line eq "name:\n") {
+            chomp ($name = $line2) unless defined($name);
+        }
+    }
+    close($file);
+}
 
 # argument parsing
 GetOptions(
@@ -79,47 +129,7 @@ GetOptions(
                                     }
                                     $binDir  = ".";
                                     $objsDir = "objs"; },
-           'file|f=s'      => \$configName,
-           'chdir|C=s'     => sub { chdir $_[1] },
           ) or die "\n";
-
-
-# config load
-if ( -e $configName ) {
-    open($file, '<', $configName);
-    while (my $line = <$file>) {
-        my $line2   = <$file>;
-        $line2      =~ s/^\s*//;
-        if ($line eq "libs:\n") {
-            @libs = split /\s+/, $line2 unless @libs;
-        } elsif ($line eq "pkgs:\n") {
-            @pkgs = split /\s+/, $line2 unless @pkgs;
-        } elsif ($line eq "cflags:\n") {
-            @cflags   = split /\s+/, $line2 unless @cflags;
-        } elsif ($line eq "cxxflags:\n") {
-            @cxxflags = split /\s+/, $line2 unless @cxxflags;
-        } elsif ($line eq "O:\n") {
-            chomp ($O = $line2) unless defined($O);
-        } elsif ($line eq "src_directory:\n") {
-            chomp ($src = $line2) unless defined($src);
-        } elsif ($line eq "bin_directory:\n") {
-            chomp ($binDir = $line2) unless defined($binDir);
-        } elsif ($line eq "objs_directory:\n") {
-            chomp ($objsDir = $line2) unless defined($objsDir);
-        } elsif ($line eq "cc:\n") {
-            @cc  = split /\s+/, $line2 unless @cc;
-        } elsif ($line eq "cxx:\n") {
-            @cxx = split /\s+/, $line2 unless @cxx;
-        } elsif ($line eq "debug_cc:\n") {
-            chomp ($dcc = $line2) unless defined($dcc);
-        } elsif ($line eq "echo:\n") {
-            chomp ($echo = $line2) unless defined($echo);
-        } elsif ($line eq "name:\n") {
-            chomp ($name = $line2) unless defined($name);
-        }
-    }
-    close($file);
-}
 
 
 # default values
