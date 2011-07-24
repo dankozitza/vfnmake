@@ -120,8 +120,6 @@ GetOptions(
            'reset'         => sub { @cc    = ("clang"  , "gcc");
                                     @cxx   = ("clang++", "g++");
                                     $dcc   =  "g++";
-                                    $echo  = 1;
-                                    removeFromArray("-std=c++0x", \@cxxflags);
                                     if ( -d "src" ) {
                                         $src = "src";
                                     } else {
@@ -147,7 +145,7 @@ $objsDir ||= "objs";
 $dcc     ||= "g++";
 $name    ||= "a.out";
 $O       ||= "-O2";
-$echo    //= 1;
+$echo    //= 0;
 $quiet   //= 0;
 $stdout  //= 0;
 
@@ -161,7 +159,7 @@ find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/ and !/^\.?#/ }, $src
 die "No C/C++ files detected\n" if !@CFiles && !@CPPFiles;
 
 my @objs =  (@CFiles, @CPPFiles);
-s/^$src(.*)\.c(pp)?/$objsDir$1.o/ foreach @objs;
+s|^.*/(.*)\.c(pp)?|$objsDir/$1.o| foreach @objs;
 my $objs =  join(' ', @objs);
 
 my $cflags   = join(' ', @cflags);

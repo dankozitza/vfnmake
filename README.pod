@@ -102,7 +102,7 @@ Overwrite the previous packages.
 
 =item S<   B<-e>>,    B<--echo>
 
-Print the executed commands or not. Default: --echo
+Print the executed commands or not. Default: --no-echo
 
 =item B<--gcc>
 
@@ -132,7 +132,7 @@ MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
 =item B<--reset>
 
-Set the default compiler lists and directories, turn on echo and disable c++0x mode.
+Set the default compiler lists and directories.
 
 =back
 
