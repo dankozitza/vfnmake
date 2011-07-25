@@ -152,14 +152,14 @@ $stdout  //= 0;
 
 
 my @CFiles;
-find( sub { push @CFiles  , "$File::Find::name" if /\.c$/   and !/^\.?#/ }  , $src);
+find( sub { push @CFiles  , "$File::Find::name" if /\.c$/   and !/^\.?#/ }, $src);
 my @CPPFiles;
 find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/ and !/^\.?#/ }, $src);
 
 die "No C/C++ files detected\n" if !@CFiles && !@CPPFiles;
 
 my @objs =  (@CFiles, @CPPFiles);
-s|^.*/(.*)\.c(pp)?|$objsDir/$1.o| foreach @objs;
+s#^.*/(.*)\.(?:c|cpp)$#$objsDir/$1.o# foreach @objs;
 my $objs =  join(' ', @objs);
 
 my $cflags   = join(' ', @cflags);
@@ -188,28 +188,16 @@ my $cxx;
 my $linker;
 
 {
-    sub cmdExist {
-        return !system("command -v \"$_[0]\" > /dev/null 2> /dev/null");
+    $cc = selectCompiler(\@cc);
+    if (@CFiles) {
+        die "There are no valid C compilers in the list\n" unless cmdExist($cc);
     }
 
-    my @tmpCC = @cc;
-    do {
-        $cc = shift @tmpCC;
-    } while (@tmpCC != 0 &&
-             !cmdExist($cc));
-    die "There are no valid C compilers in the list\n" unless cmdExist($cc);
-
+    $cxx = selectCompiler(\@cxx);
     if (@CPPFiles) {
-        my @tmpCXX = @cxx;
-        do {
-            $cxx = shift @tmpCXX;
-        } while (@tmpCXX != 0 &&
-                 !cmdExist($cxx));
         die "There are no valid C++ compilers in the list\n" unless cmdExist($cxx);
-
         $linker = "\$(CXX)";
     } else {
-        $cxx = "";
         $linker = "\$(CC)";
     }
 }
@@ -351,4 +339,17 @@ sub addToArray {
 sub removeFromArray {
     my ($value, $array) = @_;
     @$array = grep {$_ ne $value} @$array;
+}
+sub cmdExist {
+    return !system("command -v \"$_[0]\" > /dev/null 2> /dev/null");
+}
+sub selectCompiler {
+    my @list = @{$_[0]};
+    my $compiler = "";
+    do {
+        $compiler = shift @list;
+    } while (@list != 0 &&
+             !cmdExist($compiler));
+    $compiler = "" unless cmdExist($compiler);
+    return $compiler;
 }
