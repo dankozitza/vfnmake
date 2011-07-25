@@ -134,6 +134,10 @@ MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
 Set the default compiler lists and directories.
 
+=item B<-i>, B<--ignore>
+
+Generate the Makefile even if there are no C/C++ files (used mainly with vfnmake.begin/end).
+
 =back
 
 =head1 MAKE TARGETS
@@ -162,9 +166,11 @@ compile and run
 
 =back
 
-=head1 EDITING THE CONFIG FILE
+=head1 THE CONFIG FILES
 
-The config file will be generated with all available options on the first run. It has the following syntax:
+=head2 vfnmake.conf
+
+The main config file will be generated with all available options on the first run. It has the following syntax:
 
     OPTION:
     SOME_SPACES/TABS VALUE(s)
@@ -173,6 +179,14 @@ The config file will be generated with all available options on the first run. I
 If you want, you can edit it, although it's not necessary. The config file is rewritten on each run so don't bother about formatting it.
 
 To reset an option, delete BOTH of its lines. If you want the value to be empty, you must leave an empty line below the option's name. The program will go crazy otherwise.
+
+=head2 vfnmake.begin
+
+Whatever is in this file, will be in the Makefile right after the initialization of the variables. Can be used to override the variables or the default target.
+
+=head2 vfnmake.end
+
+Just like I<vfnmake.begin> but is put at the end of the Makefile. Can be used to add some custom targets without affecting the default one.
 
 =head1 AUTHOR
 

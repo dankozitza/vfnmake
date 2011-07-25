@@ -25,6 +25,7 @@ my $O;
 my $echo;
 my $quiet;
 my $stdout;
+my $ignore;
 my $configName = "vfnmake.conf";
 
 my $file;
@@ -127,6 +128,7 @@ GetOptions(
                                     }
                                     $binDir  = ".";
                                     $objsDir = "objs"; },
+           'ignore|i'      => \$ignore,
           ) or die "\n";
 
 
@@ -148,6 +150,7 @@ $O       ||= "-O2";
 $echo    //= 0;
 $quiet   //= 0;
 $stdout  //= 0;
+$ignore  //= 0;
 
 
 
@@ -156,7 +159,7 @@ find( sub { push @CFiles  , "$File::Find::name" if /\.c$/   and !/^\.?#/ }, $src
 my @CPPFiles;
 find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/ and !/^\.?#/ }, $src);
 
-die "No C/C++ files detected\n" if !@CFiles && !@CPPFiles;
+die "No C/C++ files detected\n" if !$ignore and !@CFiles and !@CPPFiles;
 
 my @objs =  (@CFiles, @CPPFiles);
 s#^.*/(.*)\.(?:c|cpp)$#$objsDir/$1.o# foreach @objs;
@@ -190,7 +193,7 @@ my $linker;
 {
     $cc = selectCompiler(\@cc);
     if (@CFiles) {
-        die "There are no valid C compilers in the list\n" unless cmdExist($cc);
+        die "There are no valid C compilers in the list\n"   unless cmdExist($cc);
     }
 
     $cxx = selectCompiler(\@cxx);
@@ -210,8 +213,18 @@ CFLAGS=\$(O) $cflags
 CXXFLAGS=\$(CFLAGS) $cxxflags
 O=$O
 LFLAGS=$lflags
-OBJS=$objs
+OBJS=$objs\n";
 
+if ( -f "vfnmake.begin" ) {
+    open($file, '<', "vfnmake.begin");
+    my $sep = $/;
+    undef $/;
+    $make .= "\n" . <$file>;
+    $/ = $sep;
+    close($file);
+}
+
+$make .= "
 .PHONY: all
 all: objs $name";
 
@@ -288,6 +301,15 @@ debug: all
 .PHONY: check-syntax
 check-syntax:
 	g++ \$(CXXFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)\n";
+
+if ( -f "vfnmake.end" ) {
+    open($file, '<', "vfnmake.end");
+    my $sep = $/;
+    undef $/;
+    $make .= "\n" . <$file>;
+    $/ = $sep;
+    close($file);
+}
 
 if ($stdout) {
     print "$make";
