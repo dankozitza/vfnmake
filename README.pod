@@ -112,6 +112,12 @@ Use only gcc/g++.
 
 Use c++0x standard and switch to gcc/g++.
 
+=item B<--no-asm>
+
+=item S<   B<--asm>>
+
+Enable Assembly support (only nasm). Default: --no-asm
+
 =item B<-q>, B<--quiet>
 
 Do not print the used config.

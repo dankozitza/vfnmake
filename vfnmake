@@ -26,6 +26,7 @@ my $echo;
 my $quiet;
 my $stdout;
 my $ignore;
+my $asm;
 my $configName = "vfnmake.conf";
 
 my $file;
@@ -75,6 +76,8 @@ if ( -f $configName ) {
             chomp ($echo = $line2);
         } elsif ($line eq "name:\n") {
             chomp ($name = $line2);
+        } elsif ($line eq "asm:\n") {
+            chomp ($asm = $line2);
         }
     }
     close($file);
@@ -127,8 +130,10 @@ GetOptions(
                                         $src = ".";
                                     }
                                     $binDir  = ".";
-                                    $objsDir = "objs"; },
+                                    $objsDir = "objs";
+                                    $asm     = 0; },
            'ignore|i'      => \$ignore,
+           'asm!'          => \$asm,
           ) or die "\n";
 
 
@@ -155,14 +160,16 @@ $ignore  //= 0;
 
 
 my @CFiles;
-find( sub { push @CFiles  , "$File::Find::name" if /\.c$/   and !/^\.?#/ }, $src);
+find( sub { push @CFiles  , "$File::Find::name" if /\.c$/           and !/^\.?#/ }, $src);
 my @CPPFiles;
-find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/ and !/^\.?#/ }, $src);
+find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/         and !/^\.?#/ }, $src);
+my @ASMFiles;
+find( sub { push @ASMFiles, "$File::Find::name" if /\.(:?asm|s|S)$/ and !/^\.?#/ }, $src) if $asm;
 
-die "No C/C++ files detected\n" if !$ignore and !@CFiles and !@CPPFiles;
+die "No supported files detected\n" if !$ignore and !@CFiles and !@CPPFiles and !($asm and @ASMFiles);
 
-my @objs =  (@CFiles, @CPPFiles);
-s#^.*/(.*)\.(?:c|cpp)$#$objsDir/$1.o# foreach @objs;
+my @objs =  (@CFiles, @CPPFiles, @ASMFiles);
+s#^.*/(.*)\.[^\.]*$#$objsDir/$1.o# foreach @objs;
 my $objs =  join(' ', @objs);
 
 my $cflags   = join(' ', @cflags);
@@ -269,6 +276,22 @@ $objsDir/$deps
 	@ \$(CXX) \$(CXXFLAGS) -c \"$CPPFile\" -o \$@";
     }
 }
+if ($asm) {
+    foreach my $ASMFile (@ASMFiles) {
+        my $ofile = $ASMFile;
+        $ofile =~ s#^.*/(.*)\.[^\.]*$#$objsDir/$1.o#;
+        if ($echo) {
+            $make .= "
+$ofile: $ASMFile
+	nasm -f elf \"$ASMFile\" -o \$@";
+        } else {
+            $make .= "
+$ofile: $ASMFile
+	@ echo \"    ASM  $ASMFile\"
+	@ nasm -f elf \"$ASMFile\" -o \$@";
+        }
+    }
+}
 
 
 $make .= "\n
@@ -336,6 +359,7 @@ my @config = (
               [ bin_directory   => $binDir    ],
               [ objs_directory  => $objsDir   ],
               [ echo            => $echo      ],
+              [ asm             => $asm       ],
              );
 
 for my $p (@config) {
