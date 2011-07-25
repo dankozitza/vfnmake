@@ -50,31 +50,31 @@ if ( -f $configName ) {
         my $line2   = <$file>;
         $line2      =~ s/^\s*//;
         if ($line eq "libs:\n") {
-            @libs = split /\s+/, $line2 unless @libs;
+            @libs = split /\s+/, $line2;
         } elsif ($line eq "pkgs:\n") {
-            @pkgs = split /\s+/, $line2 unless @pkgs;
+            @pkgs = split /\s+/, $line2;
         } elsif ($line eq "cflags:\n") {
-            @cflags   = split /\s+/, $line2 unless @cflags;
+            @cflags   = split /\s+/, $line2;
         } elsif ($line eq "cxxflags:\n") {
-            @cxxflags = split /\s+/, $line2 unless @cxxflags;
+            @cxxflags = split /\s+/, $line2;
         } elsif ($line eq "O:\n") {
-            chomp ($O = $line2) unless defined($O);
+            chomp ($O = $line2);
         } elsif ($line eq "src_directory:\n") {
-            chomp ($src = $line2) unless defined($src);
+            chomp ($src = $line2);
         } elsif ($line eq "bin_directory:\n") {
-            chomp ($binDir = $line2) unless defined($binDir);
+            chomp ($binDir = $line2);
         } elsif ($line eq "objs_directory:\n") {
-            chomp ($objsDir = $line2) unless defined($objsDir);
+            chomp ($objsDir = $line2);
         } elsif ($line eq "cc:\n") {
-            @cc  = split /\s+/, $line2 unless @cc;
+            @cc  = split /\s+/, $line2;
         } elsif ($line eq "cxx:\n") {
-            @cxx = split /\s+/, $line2 unless @cxx;
+            @cxx = split /\s+/, $line2;
         } elsif ($line eq "debug_cc:\n") {
-            chomp ($dcc = $line2) unless defined($dcc);
+            chomp ($dcc = $line2);
         } elsif ($line eq "echo:\n") {
-            chomp ($echo = $line2) unless defined($echo);
+            chomp ($echo = $line2);
         } elsif ($line eq "name:\n") {
-            chomp ($name = $line2) unless defined($name);
+            chomp ($name = $line2);
         }
     }
     close($file);
