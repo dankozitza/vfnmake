@@ -2,6 +2,8 @@
 
 use strict;
 use File::Find;
+use FindBin;
+use File::Copy;
 use Getopt::Long;
 Getopt::Long::Configure("posix_default",
                         "gnu_compat",
@@ -134,6 +136,8 @@ GetOptions(
                                     $asm     = 0; },
            'ignore|i'      => \$ignore,
            'asm!'          => \$asm,
+           'configure'     => sub { copy($FindBin::RealBin . '/' . $FindBin::RealScript, "./configure.pl") or die "Copy failed\n";
+                                    chmod(0755, "./configure.pl") or "Chmod failed\n"; },
           ) or die "\n";
 
 

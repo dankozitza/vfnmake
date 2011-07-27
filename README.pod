@@ -144,6 +144,10 @@ Set the default compiler lists and directories.
 
 Generate the Makefile even if there are no C/C++ files (used mainly with vfnmake.begin/end).
 
+=item B<--configure>
+
+Generates the configure.pl script. To be specific, it just copies itself to the current directory.
+
 =back
 
 =head1 MAKE TARGETS
