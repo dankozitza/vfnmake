@@ -156,6 +156,7 @@ $echo    //= 0;
 $quiet   //= 0;
 $stdout  //= 0;
 $ignore  //= 0;
+$asm     //= 0;
 
 
 
@@ -222,6 +223,8 @@ O=$O
 LFLAGS=$lflags
 OBJS=$objs\n";
 
+$make .= "ASM=nasm -f elf\n" if $asm;
+
 if ( -f "vfnmake.begin" ) {
     open($file, '<', "vfnmake.begin");
     my $sep = $/;
@@ -283,12 +286,12 @@ if ($asm) {
         if ($echo) {
             $make .= "
 $ofile: $ASMFile
-	nasm -f elf \"$ASMFile\" -o \$@";
+	\$(ASM) \"$ASMFile\" -o \$@";
         } else {
             $make .= "
 $ofile: $ASMFile
 	@ echo \"    ASM  $ASMFile\"
-	@ nasm -f elf \"$ASMFile\" -o \$@";
+	@ \$(ASM) \"$ASMFile\" -o \$@";
         }
     }
 }
@@ -317,8 +320,11 @@ d: debug
 debug: CFLAGS += -DDEBUG -g
 debug: O=-O0
 debug: CC=$dcc
-debug: CXX=$dcc
-debug: all
+debug: CXX=$dcc\n";
+
+$make .= "debug: ASM += -g\n" if $asm;
+
+$make .= "debug: all
 
 # Emacs flymake-mode
 .PHONY: check-syntax
