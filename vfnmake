@@ -20,6 +20,7 @@ my @cxx;
 my $dcc;
 my @cflags;
 my @cxxflags;
+my @lflags;
 my @libs;
 my @pkgs;
 my $name;
@@ -60,6 +61,8 @@ if ( -f $configName ) {
             @cflags   = split /\s+/, $line2;
         } elsif ($line eq "cxxflags:\n") {
             @cxxflags = split /\s+/, $line2;
+        } elsif ($line eq "lflags:\n") {
+            @lflags = split /\s+/, $line2;
         } elsif ($line eq "O:\n") {
             chomp ($O = $line2);
         } elsif ($line eq "src_directory:\n") {
@@ -103,6 +106,10 @@ GetOptions(
            'cxxflags=s'    => sub { @cxxflags = split /\s*,\s*/, $_[1]  },
            'cxxflag|x=s'   => sub {      addToArray($_[1], \@cxxflags)  },
            'Cxxflag|X=s'   => sub { removeFromArray($_[1], \@cxxflags)  },
+
+           'lflags=s'      => sub { @lflags   = split /\s*,\s*/, $_[1]  },
+           'lflag=s'       => sub {      addToArray($_[1], \@lflags)    },
+           'Lflag=s'       => sub { removeFromArray($_[1], \@lflags)    },
 
            'pkgs=s'        => sub { @pkgs     = split /\s*,\s*/, $_[1]  },
            'pkg|p=s'       => sub {      addToArray($_[1], \@pkgs)      },
@@ -180,6 +187,9 @@ my $objs =  join(' ', @objs);
 my $cflags   = join(' ', @cflags);
 my $cxxflags = join(' ', @cxxflags);
 my $lflags   = "";
+foreach my $flag (@lflags) {
+    $lflags .= "$flag ";
+}
 foreach my $lib (@libs) {
     $lflags .= "-l $lib ";
 }
@@ -364,6 +374,7 @@ my @config = (
               [ O               => $O         ],
               [ cflags          => \@cflags   ],
               [ cxxflags        => \@cxxflags ],
+              [ lflags          => \@lflags   ],
               [ name            => $name      ],
               [ src_directory   => $src       ],
               [ bin_directory   => $binDir    ],

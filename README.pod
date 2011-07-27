@@ -98,6 +98,16 @@ Add/remove a package for pkg-config.
 
 Overwrite the previous packages.
 
+=item B<--lflag> I<flag>        (add)
+
+=item B<--Lflag> I<flag>        (remove)
+
+Add/remove a linker flag.
+
+=item B<--lflags> I<comma_separated_list_of_flags>
+
+Overwrite the previous lflags.
+
 =item B<--noe>, B<--no-echo>
 
 =item S<   B<-e>>,    B<--echo>
