@@ -38,11 +38,12 @@ my $stdout;
 my $ignore;
 my $asm;
 my $configName = "vfnmake.conf";
+my $convert;
 
 my $file;
 
 
-while ($ARGV[0] eq '-f' || $ARGV[0] eq '--file' || $ARGV[0] eq '-d' || $ARGV[0] eq '--chdir') {
+while ($ARGV[0] eq '-f' || $ARGV[0] eq '--file' || $ARGV[0] eq '-d' || $ARGV[0] eq '--chdir' || $ARGV[0] eq '--convert') {
     if ($ARGV[0] eq '-f' || $ARGV[0] eq '--file') {
         shift;
         $configName = $ARGV[0];
@@ -51,6 +52,9 @@ while ($ARGV[0] eq '-f' || $ARGV[0] eq '--file' || $ARGV[0] eq '-d' || $ARGV[0] 
         shift;
         chdir $ARGV[0];
         shift;
+    } elsif ($ARGV[0] eq '--convert') {
+        shift;
+        $convert = 1;
     }
 }
 
@@ -58,8 +62,15 @@ while ($ARGV[0] eq '-f' || $ARGV[0] eq '--file' || $ARGV[0] eq '-d' || $ARGV[0] 
 if ( -f $configName ) {
     open($file, '<', $configName);
     while (my $line = <$file>) {
-        my $line2   = <$file>;
-        $line2      =~ s/^\s*//;
+        my $line2;
+        if ($convert) {
+            $line2 = <$file>;
+            $line2 =~ s/^\s*//;
+        } else {
+            $line2 =  $line;
+            $line  =~ s/^\s*([^:]*:).*$/$1/;
+            $line2 =~ s/^\s*[^:]*:\s*(.*)$/$1/;
+        }
         if ($line eq "libs:\n") {
             @libs = split /\s+/, $line2;
         } elsif ($line eq "pkgs:\n") {
@@ -401,7 +412,8 @@ for my $p (@config) {
     } else {
         $str = $p->[1];
     }
-    $config .= "$p->[0]:\n\t$str\n";
+    #$config .= "$p->[0]: $str\n";
+    $config .= printColumns($p->[0] . ':', $str, 20) . "\n";
 }
 
 open($file, '>', $configName) or die;
@@ -430,4 +442,11 @@ sub selectCompiler {
              !cmdExist($compiler));
     $compiler = "" unless cmdExist($compiler);
     return $compiler;
+}
+sub printColumns {
+    my ($first, $second, $width) = @_;
+    $first .= ' ' x ($width - length($first));
+    my $ret = $first . $second;
+    $ret =~ s/\s*$//;
+    return $ret;
 }

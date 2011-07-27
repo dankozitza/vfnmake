@@ -6,7 +6,7 @@ vfnmake - a relatively simple Makefile generator
 
 =head1 SYNOPSIS
 
-B<vfnmake> [ B<-f> I<config_file> ] [ B<-d> I<directory> ] [ options ]
+B<vfnmake> [ B<-f> I<config_file> ] [ B<-d> I<directory> ] [ B<--convert> ] [ options ]
 
 =head1 DESCRIPTION
 
@@ -166,6 +166,11 @@ Generate the Makefile even if there are no C/C++ files (used mainly with vfnmake
 
 Generates the configure.pl script. To be specific, it just copies itself to the current directory.
 
+=item B<--convert>
+
+Convert the config file from the old format to the new one.
+MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
+
 =back
 
 =head1 MAKE TARGETS
@@ -200,13 +205,10 @@ compile and run
 
 The main config file will be generated with all available options on the first run. It has the following syntax:
 
-    OPTION:
-    SOME_SPACES/TABS VALUE(s)
-    ANOTHER OPTION:...
+    OPTION: some_spaces VALUE(s)
+    ...
 
 If you want, you can edit it, although it's not necessary. The config file is rewritten on each run so don't bother about formatting it.
-
-To reset an option, delete BOTH of its lines. If you want the value to be empty, you must leave an empty line below the option's name. The program will go crazy otherwise.
 
 =head2 vfnmake.begin
 
