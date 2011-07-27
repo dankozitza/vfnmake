@@ -10,6 +10,13 @@ Getopt::Long::Configure("posix_default",
                         "bundling",
                         "no_ignore_case",
                         "no_auto_abbrev");
+use Pod::Usage;
+my $doc;
+my $docmsg;
+if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
+    $doc    = "$FindBin::RealBin/README.pod";
+    $docmsg = "\nTry `vfnmake --help'\n";
+}
 
 # variables
 my $src;
@@ -145,7 +152,11 @@ GetOptions(
            'asm!'          => \$asm,
            'configure'     => sub { copy($FindBin::RealBin . '/' . $FindBin::RealScript, "./configure.pl") or die "Copy failed\n";
                                     chmod(0755, "./configure.pl") or "Chmod failed\n"; },
-          ) or die "\n";
+           'help|h'        => sub { pod2usage({ -input => $doc, -verbose => 1 }) or die if $FindBin::RealScript eq "vfnmake";
+                                    exit },
+           'man'           => sub { pod2usage({ -input => $doc, -verbose => 2 }) or die if $FindBin::RealScript eq "vfnmake";
+                                    exit },
+          ) or die pod2usage({ -input => $doc, -message => $docmsg });
 
 
 # default values
