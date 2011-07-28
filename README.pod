@@ -6,7 +6,7 @@ vfnmake - a relatively simple Makefile generator
 
 =head1 SYNOPSIS
 
-B<vfnmake> [ B<-f> I<config_file> ] [ B<-d> I<directory> ] [ B<--convert> ] [ options ]
+B<vfnmake> [ B<-f> I<file> ] [ B<-d> I<dir> ] [ B<--convert> ] [ options ]
 
 =head1 DESCRIPTION
 
@@ -135,6 +135,12 @@ Use c++0x standard and switch to gcc/g++.
 =item S<   B<--asm>>
 
 Enable Assembly support (only nasm). Default: --no-asm
+
+=item B<--no-qt>
+
+=item S<   B<--qt>>
+
+Enable Qt4 meta-object support for files named *_qt.hpp and add some useful flags. Default: --no-qt
 
 =item B<-q>, B<--quiet>
 

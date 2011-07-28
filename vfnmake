@@ -38,6 +38,7 @@ my $stdout;
 my $ignore;
 my $asm;
 my $configName = "vfnmake.conf";
+my $qt;
 my $convert;
 
 my $file;
@@ -101,6 +102,8 @@ if ( -f $configName ) {
             chomp ($name = $line2);
         } elsif ($line eq "asm:\n") {
             chomp ($asm = $line2);
+        } elsif ($line eq "qt:\n") {
+            chomp ($qt = $line2);
         }
     }
     close($file);
@@ -158,9 +161,15 @@ GetOptions(
                                     }
                                     $binDir  = ".";
                                     $objsDir = "objs";
-                                    $asm     = 0; },
+                                    $asm     = 0;
+                                    $qt      = 2; },
            'ignore|i'      => \$ignore,
            'asm!'          => \$asm,
+           'qt!'           => sub { if ($_[1]) {
+                                        $qt = 1;
+                                    } else {
+                                        $qt = 2 # reset
+                                    } },
            'configure'     => sub { copy($FindBin::RealBin . '/' . $FindBin::RealScript, "./configure.pl") or die "Copy failed\n";
                                     chmod(0755, "./configure.pl") or "Chmod failed\n"; },
            'help|h'        => sub { pod2usage({ -input => $doc, -verbose => 1 }) or die if $FindBin::RealScript eq "vfnmake";
@@ -190,20 +199,40 @@ $quiet   //= 0;
 $stdout  //= 0;
 $ignore  //= 0;
 $asm     //= 0;
+$qt      //= 0;
+if ($qt == 1) {
+    addToArray($_, \@cflags) for ("-I/usr/share/qt4/mkspecs/linux-g++", "-I/usr/include/qt4/QtCore", "-I/usr/include/qt4/QtGui", "-I/usr/include/qt4");  # may be distro-specific, so let me know in case of problems
+    addToArray($_, \@lflags) for ("-L/usr/lib", "-lQtGui", "-lQtCore", "-lpthread");
+} elsif ($qt == 2) {
+    removeFromArray($_, \@cflags) for ("-I/usr/share/qt4/mkspecs/linux-g++", "-I/usr/include/qt4/QtCore", "-I/usr/include/qt4/QtGui", "-I/usr/include/qt4");
+    removeFromArray($_, \@lflags) for ("-L/usr/lib", "-lQtGui", "-lQtCore", "-lpthread");
+    $qt = 0;
+}
 
 
 
 my @CFiles;
-find( sub { push @CFiles  , "$File::Find::name" if /\.c$/           and !/^\.?#/ }, $src);
+find( sub { push @CFiles  , "$File::Find::name" if /\.c$/              and !/^\.?#/ }, $src);
 my @CPPFiles;
-find( sub { push @CPPFiles, "$File::Find::name" if /\.cpp$/         and !/^\.?#/ }, $src);
+find( sub { push @CPPFiles, "$File::Find::name" if /^(?!moc_).*\.cpp$/ and !/^\.?#/ }, $src);
+my @QTFiles;
+find( sub { push @QTFiles , "$File::Find::name" if /_qt\.hpp$/         and !/^\.?#/ }, $src) if $qt;
 my @ASMFiles;
-find( sub { push @ASMFiles, "$File::Find::name" if /\.(:?asm|s|S)$/ and !/^\.?#/ }, $src) if $asm;
+find( sub { push @ASMFiles, "$File::Find::name" if /\.(:?asm|s|S)$/    and !/^\.?#/ }, $src) if $asm;
 
-die "No supported files detected\n" if !$ignore and !@CFiles and !@CPPFiles and !($asm and @ASMFiles);
+die "No supported files detected\n" if ( !$ignore    and
+                                         !@CFiles    and
+                                         !@QTFiles   and
+                                         !@CPPFiles  and
+                                         !($asm and @ASMFiles) );
 
 my @objs =  (@CFiles, @CPPFiles, @ASMFiles);
 s#^.*/(.*)\.[^\.]*$#$objsDir/$1.o# foreach @objs;
+foreach my $qt (@QTFiles) {
+    my $tmp = $qt;
+    $tmp =~ s#^.*/(.*)\.[^\.]*$#$objsDir/moc_$1.o#;
+    push @objs, $tmp;
+}
 my $objs =  join(' ', @objs);
 
 my $cflags   = join(' ', @cflags);
@@ -286,7 +315,7 @@ $binDir/$name: \$(OBJS)
 }
 
 
-# detecting the dependencies
+# creating the targets
 foreach my $CFile (@CFiles) {
     my $deps = `gcc -MM "$CFile"`;    # some compilers have problems sometimes, so I've hardcoded gcc here
     chomp $deps;
@@ -315,6 +344,29 @@ $objsDir/$deps
 	@ \$(CXX) \$(CXXFLAGS) -c \"$CPPFile\" -o \$@";
     }
 }
+
+if ($qt) {
+    $make .= "
+$src/moc:
+	@ mkdir \"$src/moc\"
+.PRECIOUS: $src/moc/moc_\%_qt.cpp";
+    if ($echo) {
+        $make .= "
+$src/moc/moc_\%_qt.cpp: $src/moc $src/\%_qt.hpp
+	moc \"$src/\$*_qt.hpp\" -o \$@
+objs/moc_\%_qt.o: $src/moc/moc_\%_qt.cpp
+	\$(CXX) \$(CXXFLAGS) -c \"$src/moc/moc_\$*_qt.cpp\" -o \$@";
+    } else {
+        $make .= "
+$src/moc/moc_\%_qt.cpp: $src/moc $src/\%_qt.hpp
+	@ echo \"    MOC  $src/\$*_qt.hpp\"
+	@ moc \"$src/\$*_qt.hpp\" -o \$@
+objs/moc_\%_qt.o: $src/moc/moc_\%_qt.cpp
+	@ echo \"    CXX  $src/moc/moc_\$*_qt.cpp\"
+	@ \$(CXX) \$(CXXFLAGS) -c \"$src/moc/moc_\$*_qt.cpp\" -o \$@";
+    }
+}
+
 if ($asm) {
     foreach my $ASMFile (@ASMFiles) {
         my $ofile = $ASMFile;
@@ -340,8 +392,9 @@ objs:
 c: clean
 clean:
 	@ if [ -d \"$objsDir\" ]; then rm -r \"$objsDir\"; fi
-	@ rm -f \"$binDir/$name\"
-	@ echo \"    CLEAN\"
+	@ rm -f \"$binDir/$name\"\n";
+$make .= "	@ if [ -d \"$src/moc\" ];then rm -r \"$src/moc\"; fi\n" if $qt;
+$make .= "	@ echo \"    CLEAN\"
 .PHONY: f fresh
 f: fresh
 fresh: clean
@@ -403,6 +456,7 @@ my @config = (
               [ objs_directory  => $objsDir   ],
               [ echo            => $echo      ],
               [ asm             => $asm       ],
+              [ qt              => $qt        ],
              );
 
 for my $p (@config) {
@@ -412,7 +466,6 @@ for my $p (@config) {
     } else {
         $str = $p->[1];
     }
-    #$config .= "$p->[0]: $str\n";
     $config .= printColumns($p->[0] . ':', $str, 20) . "\n";
 }
 
