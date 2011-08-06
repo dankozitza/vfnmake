@@ -162,7 +162,7 @@ MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
 =item B<-r>, B<--run>
 
-Run make automatically.
+Run make automatically. Specify it twice to run the compiled program too.
 
 =item B<--reset>
 
