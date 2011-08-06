@@ -160,6 +160,10 @@ MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 Use I<dir> as the working directory.
 MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
+=item B<-r>, B<--run>
+
+Run make automatically.
+
 =item B<--reset>
 
 Set the default compiler lists and directories.

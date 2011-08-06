@@ -40,6 +40,7 @@ my $asm;
 my $configName = "vfnmake.conf";
 my $qt;
 my $convert;
+my $run;
 
 my $file;
 
@@ -164,6 +165,7 @@ GetOptions(
                                     $asm     = 0;
                                     $qt      = 2; },
            'ignore|i'      => \$ignore,
+           'run|r'         => \$run,
            'asm!'          => \$asm,
            'qt!'           => sub { if ($_[1]) {
                                         $qt = 1;
@@ -503,3 +505,5 @@ sub printColumns {
     $ret =~ s/\s*$//;
     return $ret;
 }
+
+system("make") if $run;
