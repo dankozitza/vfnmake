@@ -282,9 +282,9 @@ my $linker;
 
 
 # write the macros
-my $make = "CC=$cc
-CXX=$cxx
-CFLAGS=\$(O) $cflags
+my $make = "CC=$cc\n";
+$make .= "CXX=$cxx\n" if @CPPFiles;
+$make .= "CFLAGS=\$(O) $cflags
 CXXFLAGS=\$(CFLAGS) $cxxflags
 O=-O$O
 LFLAGS=$lflags
