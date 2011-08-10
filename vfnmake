@@ -203,11 +203,11 @@ $ignore  //= 0;
 $asm     //= 0;
 $qt      //= 0;
 if ($qt == 1) {
-    addToArray($_, \@cflags) for ("-I/usr/share/qt4/mkspecs/linux-g++", "-I/usr/include/qt4/QtCore", "-I/usr/include/qt4/QtGui", "-I/usr/include/qt4");  # may be distro-specific, so let me know in case of problems
-    addToArray($_, \@lflags) for ("-L/usr/lib", "-lQtGui", "-lQtCore", "-lpthread");
+    addToArray($_, \@pkgs) for ("QtCore", "QtGui");
+    addToArray($_, \@libs) for ("pthread");
 } elsif ($qt == 2) {
-    removeFromArray($_, \@cflags) for ("-I/usr/share/qt4/mkspecs/linux-g++", "-I/usr/include/qt4/QtCore", "-I/usr/include/qt4/QtGui", "-I/usr/include/qt4");
-    removeFromArray($_, \@lflags) for ("-L/usr/lib", "-lQtGui", "-lQtCore", "-lpthread");
+    removeFromArray($_, \@pkgs) for ("QtCore", "QtGui");
+    removeFromArray($_, \@libs) for ("pthread");
     $qt = 0;
 }
 
