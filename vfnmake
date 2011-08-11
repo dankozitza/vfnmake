@@ -166,7 +166,16 @@ GetOptions(
                                     $qt      = 2; },
            'ignore|i'      => \$ignore,
            'run|r+'         => \$run,
-           'asm!'          => \$asm,
+           'asm!'          => sub { if ($_[1]) {
+                                        $asm = 32
+                                    } else {
+                                        $asm = 0
+                                    } },
+           'asm64!'        => sub { if ($_[1]) {
+                                        $asm = 64
+                                    } else {
+                                        $asm = 0
+                                    } },
            'qt!'           => sub { if ($_[1]) {
                                         $qt = 1;
                                     } else {
@@ -290,7 +299,9 @@ O=-O$O
 LFLAGS=$lflags
 OBJS=$objs\n";
 
-$make .= "ASM=nasm -f elf\n" if $asm;
+$make .= "ASM=nasm -f elf" if $asm;
+$make .= "64"              if $asm == 64;
+$make .= "\n";
 
 if ( -f "vfnmake.begin" ) {
     open($file, '<', "vfnmake.begin");

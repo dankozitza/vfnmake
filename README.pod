@@ -134,7 +134,13 @@ Use c++0x standard and switch to gcc/g++.
 
 =item S<   B<--asm>>
 
-Enable Assembly support (only nasm). Default: --no-asm
+Enable 32-bit Assembly support (only nasm). Default: --no-asm
+
+=item B<--no-asm64>
+
+=item S<   B<--asm64>>
+
+Enable 64-bit Assembly support (only nasm). Default: --no-asm64
 
 =item B<--no-qt>
 
