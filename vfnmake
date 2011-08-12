@@ -165,9 +165,7 @@ GetOptions(
                                         $src = ".";
                                     }
                                     $binDir  = ".";
-                                    $objsDir = "objs";
-                                    $asm     = 0;
-                                    $qt      = 2; },
+                                    $objsDir = "objs"; },
            'ignore|i'      => \$ignore,
            'run|r+'        => \$run,
            'asm!'          => sub { if ($_[1]) {
