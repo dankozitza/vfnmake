@@ -149,10 +149,19 @@ GetOptions(
            'echo|e!'       => \$echo,
            'quiet|q'       => \$quiet,
            'stdout'        => \$stdout,
-           'cpp0x'         => sub { addToArray("-std=c++0x", \@cxxflags);
-                                    @cc    = ("gcc");
-                                    @cxx   = ("g++");
-                                    $dcc   =  "g++"},
+           'cpp0x!'         => sub { if ($_[1]) {
+                                        addToArray("-std=c++0x", \@cxxflags);
+                                        @cc    = ("gcc");
+                                        @cxx   = ("g++");
+                                        $dcc   =  "gcc";
+                                        $dcxx  =  "g++";
+                                    } else {
+                                        removeFromArray("-std=c++0x", \@cxxflags);
+                                        @cc    = ();
+                                        @cxx   = ();
+                                        $dcc   = "";
+                                        $dcxx  = "";
+                                    } },
            'gcc'           => sub { @cc    = ("gcc");
                                     @cxx   = ("g++");
                                     $dcc   =  "gcc";

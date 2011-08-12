@@ -130,7 +130,9 @@ Print the executed commands or not. Default: --no-echo
 
 Use only gcc/g++.
 
-=item B<--cpp0x>
+=item B<--no-cpp0x>
+
+=item S<   B<--cpp0x>>
 
 Use c++0x standard and switch to gcc/g++.
 
