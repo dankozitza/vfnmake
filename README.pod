@@ -60,7 +60,11 @@ Comma separated list of used C++ compilers. The first one available is used. Def
 
 =item B<--dcc> I<compiler>
 
-A compiler for 'make debug'. Default: g++
+A C compiler for 'make debug'. Default: gcc
+
+=item B<--dcxx> I<compiler>
+
+A C++ compiler for 'make debug'. Default: g++
 
 =item B<-c> I<flag>, B<--cflag> I<flag>		(add)
 

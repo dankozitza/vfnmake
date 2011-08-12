@@ -25,6 +25,7 @@ my $objsDir;
 my @cc;
 my @cxx;
 my $dcc;
+my $dcxx;
 my @cflags;
 my @cxxflags;
 my @lflags;
@@ -97,6 +98,8 @@ if ( -f $configName ) {
             @cxx = split /\s+/, $line2;
         } elsif ($line eq "debug_cc:\n") {
             chomp ($dcc = $line2);
+        } elsif ($line eq "debug_cxx:\n") {
+            chomp ($dcxx = $line2);
         } elsif ($line eq "echo:\n") {
             chomp ($echo = $line2);
         } elsif ($line eq "name:\n") {
@@ -115,6 +118,7 @@ GetOptions(
            'cc=s'          => sub { @cc  = split /\s*,\s*/, $_[1] },
            'cxx=s'         => sub { @cxx = split /\s*,\s*/, $_[1] },
            'dcc=s'         => \$dcc,
+           'dcxx=s'        => \$dcxx,
 
            'src=s'         => \$src,
            'bin=s'         => \$binDir,
@@ -165,7 +169,7 @@ GetOptions(
                                     $asm     = 0;
                                     $qt      = 2; },
            'ignore|i'      => \$ignore,
-           'run|r+'         => \$run,
+           'run|r+'        => \$run,
            'asm!'          => sub { if ($_[1]) {
                                         $asm = 32
                                     } else {
@@ -202,7 +206,8 @@ $binDir  ||= ".";
 $objsDir ||= "objs";
 @cc        = ("clang",   "gcc") unless @cc;
 @cxx       = ("clang++", "g++") unless @cxx;
-$dcc     ||= "g++";
+$dcc     ||= "gcc";
+$dcxx    ||= "g++";
 $name    ||= "a.out";
 $O       //= 2;
 $echo    //= 0;
@@ -422,7 +427,7 @@ d: debug
 debug: CFLAGS += -DDEBUG -g
 debug: O=-O0
 debug: CC=$dcc
-debug: CXX=$dcc\n";
+debug: CXX=$dcxx\n";
 
 $make .= "debug: ASM += -g\n" if $asm;
 
@@ -457,6 +462,7 @@ my @config = (
               [ cc              => \@cc       ],
               [ cxx             => \@cxx      ],
               [ debug_cc        => $dcc       ],
+              [ debug_cxx       => $dcxx      ],
               [ libs            => \@libs     ],
               [ pkgs            => \@pkgs     ],
               [ O               => $O         ],
