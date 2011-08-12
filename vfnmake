@@ -155,17 +155,15 @@ GetOptions(
                                     $dcc   =  "g++"},
            'gcc'           => sub { @cc    = ("gcc");
                                     @cxx   = ("g++");
-                                    $dcc   =  "g++"},
-           'reset'         => sub { @cc    = ("clang"  , "gcc");
-                                    @cxx   = ("clang++", "g++");
-                                    $dcc   =  "g++";
-                                    if ( -d "src" ) {
-                                        $src = "src";
-                                    } else {
-                                        $src = ".";
-                                    }
-                                    $binDir  = ".";
-                                    $objsDir = "objs"; },
+                                    $dcc   =  "gcc";
+                                    $dcxx  =  "g++"; },
+           'reset'         => sub { @cc       = ();
+                                    @cxx      = ();
+                                    $dcc      = "";
+                                    $dcc      = "";
+                                    $src      = "";
+                                    $binDir   = "";
+                                    $objsDir  = ""; },
            'ignore|i'      => \$ignore,
            'run|r+'        => \$run,
            'asm!'          => sub { if ($_[1]) {
@@ -193,7 +191,7 @@ GetOptions(
 
 
 # default values
-unless (defined($src)) {
+unless ($src) {
     if ( -d "src" ) {
         $src = "src";
     } else {
