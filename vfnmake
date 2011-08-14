@@ -1,15 +1,16 @@
 #!/usr/bin/env perl
+$main::VERSION = "1.0.0";
 
 use strict;
 use File::Find;
 use FindBin;
 use File::Copy;
 use Getopt::Long;
-Getopt::Long::Configure("posix_default",
-                        "gnu_compat",
-                        "bundling",
+Getopt::Long::Configure("bundling",
                         "no_ignore_case",
-                        "no_auto_abbrev");
+                        "no_auto_abbrev",
+                        "auto_version",
+                        "pass_through");
 use Pod::Usage;
 my $doc;
 my $docmsg;
@@ -48,20 +49,13 @@ my $run;
 my $file;
 
 
-while ($ARGV[0] eq '-f' || $ARGV[0] eq '--file' || $ARGV[0] eq '-d' || $ARGV[0] eq '--chdir' || $ARGV[0] eq '--convert') {
-    if ($ARGV[0] eq '-f' || $ARGV[0] eq '--file') {
-        shift;
-        $configName = $ARGV[0];
-        shift;
-    } elsif ($ARGV[0] eq '-d' || $ARGV[0] eq '--chdir') {
-        shift;
-        chdir $ARGV[0];
-        shift;
-    } elsif ($ARGV[0] eq '--convert') {
-        shift;
-        $convert = 1;
-    }
-}
+GetOptions(
+           'file|f=s'  => \$configName,
+           'chdir|d=s' => sub { chdir $_[1] },
+           'convert'   => \$convert,
+          );
+
+Getopt::Long::Configure("no_pass_through");
 
 loadConfig("/etc/vfnmake.conf");
 loadConfig("$HOME/.vfnmake.conf");

@@ -8,17 +8,21 @@ vfnmake - a relatively simple Makefile generator
 
 B<vfnmake> [ B<-f> I<file> ] [ B<-d> I<dir> ] [ B<--convert> ] [ options ]
 
+B<vfnmake> B<--version>
+
 =head1 DESCRIPTION
 
-vfnmake works on fire-and-forget basis with as less configuration as possible. It does not try to compete with CMake or Autotools. I wrote it because writting Makefiles, while not difficult, can be really tedious even for the simple projects.
+vfnmake works on fire-and-forget basis with as few configuration as possible. It does not try to compete with CMake or Autotools. I wrote it because writting Makefiles, while not difficult, can be really tedious even for the simple projects. To enable linking with Assembly, use B<--asm>/B<--asm64> options.
 
-To generate a Makefile for a program not using any external libraries just type:
+Qt4 is kind of supported (B<--qt> option) but you have to rename your headers that use QObject so they will end with I<_qt.hpp>.
+
+To generate a Makefile for a program not using any external libraries with no compilation flags just type:
 
 S<        B<vfnmake>>
 
-If you need to link for example ncurses, use this:
+If you need to link for example ncurses and want to use the -Wall flag, type this:
 
-S<        B<vfnmake --lib=ncurses>>
+S<        B<vfnmake --lib=ncurses --cflag=-Wall>>
 
 For a complete list of arguments, see below.
 
@@ -165,12 +169,10 @@ Print the Makefile to the stdout instead of saving in the file so it can be pipe
 =item B<-f> I<file>, B<--file> I<file>
 
 Use I<file> instead of vfnmake.conf as the config file. Default: vfnmake.conf
-MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
 =item B<-d> I<dir>, B<--chdir> I<dir>
 
 Use I<dir> as the working directory.
-MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
 =item B<-r>, B<--run>
 
@@ -191,7 +193,6 @@ Generates the configure.pl script. To be specific, it just copies itself to the 
 =item B<--convert>
 
 Convert the config file from the old format to the new one.
-MUST BE SPECIFIED BEFORE ANY OTHER ARGUMENTS
 
 =back
 
@@ -223,7 +224,7 @@ compile and run
 
 =head1 THE CONFIG FILES
 
-The config files are read from I</etc/vfnmake.conf>, I<~/.vfnmake.conf> and I<vfnmake.conf> in that order. Additionaly there are two other files - I<vfnmake.begin> and I<vfnmake.end>. For their function see below.
+The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vfnmake.conf> in that order. Additionaly there are two other files - F<vfnmake.begin> and F<vfnmake.end>. For their function see below.
 
 =head2 vfnmake.conf syntax
 
