@@ -18,6 +18,8 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $docmsg = "\nTry `vfnmake --help'\n";
 }
 
+my $HOME = $ENV{HOME};
+
 # variables
 my $src;
 my $binDir;
@@ -61,57 +63,9 @@ while ($ARGV[0] eq '-f' || $ARGV[0] eq '--file' || $ARGV[0] eq '-d' || $ARGV[0] 
     }
 }
 
-# config load
-if ( -f $configName ) {
-    open($file, '<', $configName);
-    while (my $line = <$file>) {
-        my $line2;
-        if ($convert) {
-            $line2 = <$file>;
-            $line2 =~ s/^\s*//;
-        } else {
-            $line2 =  $line;
-            $line  =~ s/^\s*([^:]*:).*$/$1/;
-            $line2 =~ s/^\s*[^:]*:\s*(.*)$/$1/;
-        }
-        if ($line eq "libs:\n") {
-            @libs = split /\s+/, $line2;
-        } elsif ($line eq "pkgs:\n") {
-            @pkgs = split /\s+/, $line2;
-        } elsif ($line eq "cflags:\n") {
-            @cflags   = split /\s+/, $line2;
-        } elsif ($line eq "cxxflags:\n") {
-            @cxxflags = split /\s+/, $line2;
-        } elsif ($line eq "lflags:\n") {
-            @lflags = split /\s+/, $line2;
-        } elsif ($line eq "O:\n") {
-            chomp ($O = $line2);
-        } elsif ($line eq "src_directory:\n") {
-            chomp ($src = $line2);
-        } elsif ($line eq "bin_directory:\n") {
-            chomp ($binDir = $line2);
-        } elsif ($line eq "objs_directory:\n") {
-            chomp ($objsDir = $line2);
-        } elsif ($line eq "cc:\n") {
-            @cc  = split /\s+/, $line2;
-        } elsif ($line eq "cxx:\n") {
-            @cxx = split /\s+/, $line2;
-        } elsif ($line eq "debug_cc:\n") {
-            chomp ($dcc = $line2);
-        } elsif ($line eq "debug_cxx:\n") {
-            chomp ($dcxx = $line2);
-        } elsif ($line eq "echo:\n") {
-            chomp ($echo = $line2);
-        } elsif ($line eq "name:\n") {
-            chomp ($name = $line2);
-        } elsif ($line eq "asm:\n") {
-            chomp ($asm = $line2);
-        } elsif ($line eq "qt:\n") {
-            chomp ($qt = $line2);
-        }
-    }
-    close($file);
-}
+loadConfig("/etc/vfnmake.conf");
+loadConfig("$HOME/.vfnmake.conf");
+loadConfig("vfnmake.conf");
 
 # argument parsing
 GetOptions(
@@ -214,13 +168,13 @@ $objsDir ||= "objs";
 $dcc     ||= "gcc";
 $dcxx    ||= "g++";
 $name    ||= "a.out";
-$O       //= 2;
-$echo    //= 0;
-$quiet   //= 0;
-$stdout  //= 0;
-$ignore  //= 0;
-$asm     //= 0;
-$qt      //= 0;
+$O         = 2 if $O       eq "";
+$echo      = 0 if $echo    eq "";
+$quiet     = 0 if $quiet   eq "";
+$stdout    = 0 if $stdout  eq "";
+$ignore    = 0 if $ignore  eq "";
+$asm       = 0 if $asm     eq "";
+$qt        = 0 if $qt      eq "";
 if ($qt == 1) {
     addToArray($_, \@pkgs) for ("QtCore", "QtGui");
     addToArray($_, \@libs) for ("pthread");
@@ -498,6 +452,9 @@ print $file "$config";
 close($file);
 print "$config" unless $quiet or $stdout;
 
+system("make")     if $run;
+system("./$name")  if $run >= 2 and not $?;
+
 
 sub addToArray {
     my ($value, $array) = @_;
@@ -527,6 +484,55 @@ sub printColumns {
     $ret =~ s/\s*$//;
     return $ret;
 }
-
-system("make")     if $run;
-system("./$name")  if $run >= 2 and not $?;
+sub loadConfig {
+    if ( -r $_[0] ) {
+        open(my $file, '<', $_[0]);
+        while (my $line = <$file>) {
+            my $line2;
+            if ($convert) {
+                $line2 = <$file>;
+                $line2 =~ s/^\s*//;
+            } else {
+                $line2 =  $line;
+                $line  =~ s/^\s*([^:]*:).*$/$1/;
+                $line2 =~ s/^\s*[^:]*:\s*(.*)$/$1/;
+            }
+            if ($line eq "libs:\n") {
+                @libs = split /\s+/, $line2;
+            } elsif ($line eq "pkgs:\n") {
+                @pkgs = split /\s+/, $line2;
+            } elsif ($line eq "cflags:\n") {
+                @cflags   = split /\s+/, $line2;
+            } elsif ($line eq "cxxflags:\n") {
+                @cxxflags = split /\s+/, $line2;
+            } elsif ($line eq "lflags:\n") {
+                @lflags = split /\s+/, $line2;
+            } elsif ($line eq "O:\n") {
+                chomp ($O = $line2);
+            } elsif ($line eq "src_directory:\n") {
+                chomp ($src = $line2);
+            } elsif ($line eq "bin_directory:\n") {
+                chomp ($binDir = $line2);
+            } elsif ($line eq "objs_directory:\n") {
+                chomp ($objsDir = $line2);
+            } elsif ($line eq "cc:\n") {
+                @cc  = split /\s+/, $line2;
+            } elsif ($line eq "cxx:\n") {
+                @cxx = split /\s+/, $line2;
+            } elsif ($line eq "debug_cc:\n") {
+                chomp ($dcc = $line2);
+            } elsif ($line eq "debug_cxx:\n") {
+                chomp ($dcxx = $line2);
+            } elsif ($line eq "echo:\n") {
+                chomp ($echo = $line2);
+            } elsif ($line eq "name:\n") {
+                chomp ($name = $line2);
+            } elsif ($line eq "asm:\n") {
+                chomp ($asm = $line2);
+            } elsif ($line eq "qt:\n") {
+                chomp ($qt = $line2);
+            }
+        }
+        close($file);
+    }
+}

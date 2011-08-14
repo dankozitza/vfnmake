@@ -66,9 +66,9 @@ A C compiler for 'make debug'. Default: gcc
 
 A C++ compiler for 'make debug'. Default: g++
 
-=item B<-c> I<flag>, B<--cflag> I<flag>		(add)
+=item B<-c> I<flag>, B<--cflag> I<flag>         (add)
 
-=item B<-C> I<flag>, B<--Cflag> I<flag>		(remove)
+=item B<-C> I<flag>, B<--Cflag> I<flag>         (remove)
 
 Add/remove a compilation flag.
 
@@ -76,9 +76,9 @@ Add/remove a compilation flag.
 
 Overwrite the previous cflags.
 
-=item B<-x> I<flag>, B<--cxxflag> I<flag>		(add)
+=item B<-x> I<flag>, B<--cxxflag> I<flag>       (add)
 
-=item B<-X> I<flag>, B<--Cxxflag> I<flag>		(remove)
+=item B<-X> I<flag>, B<--Cxxflag> I<flag>       (remove)
 
 Add/remove a C++ compilation flag. These are used only in C++ IN ADDITION to the regular cflags.
 
@@ -90,9 +90,9 @@ Overwrite the previous cxxflags.
 
 Set the optimization level.
 
-=item B<-l> I<library>, B<--lib> I<library>	(add)
+=item B<-l> I<library>, B<--lib> I<library>     (add)
 
-=item B<-L> I<library>, B<--Lib> I<library>	(remove)
+=item B<-L> I<library>, B<--Lib> I<library>     (remove)
 
 Add/remove a library to link.
 
@@ -100,9 +100,9 @@ Add/remove a library to link.
 
 Overwrite the previous libraries.
 
-=item B<-p> I<package>, B<--pkg> I<package>			(add)
+=item B<-p> I<package>, B<--pkg> I<package>             (add)
 
-=item B<-P> I<package>, B<--Pkg> I<package>			(remove)
+=item B<-P> I<package>, B<--Pkg> I<package>             (remove)
 
 Add/remove a package for pkg-config.
 
@@ -223,14 +223,29 @@ compile and run
 
 =head1 THE CONFIG FILES
 
-=head2 vfnmake.conf
+The config files are read from I</etc/vfnmake.conf>, I<~/.vfnmake.conf> and I<vfnmake.conf> in that order. Additionaly there are two other files - I<vfnmake.begin> and I<vfnmake.end>. For their function see below.
 
-The main config file will be generated with all available options on the first run. It has the following syntax:
+=head2 vfnmake.conf syntax
 
-    OPTION: some_spaces VALUE(s)
-    ...
+    cc:                 compiler1 compiler2 ...
+    cxx:                compiler1 compiler2 ...
+    debug_cc:           compiler
+    debug_cxx:          compiler
+    libs:               lib1 lib2 ...
+    pkgs:               pkg1 pkg2 ...
+    O:                  0|1|2|3|s
+    cflags:             flag1 flag2 ...
+    cxxflags:           flag1 flag2 ...
+    lflags:             flag1 flag2 ...
+    name:               name
+    src_directory:      dir
+    bin_directory:      dir
+    objs_directory:     dir
+    echo:               0|1
+    asm:                0|32|64
+    qt:                 0|1
 
-If you want, you can edit it, although it's not necessary. The config file is rewritten on each run so don't bother about formatting it.
+To use the default value, leave the field empty.
 
 =head2 vfnmake.begin
 
