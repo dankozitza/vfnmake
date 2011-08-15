@@ -176,7 +176,7 @@ Use I<dir> as the working directory.
 
 =item B<-r>, B<--run>
 
-Run make automatically. Specify it twice to run the compiled program too.
+Run make automatically. Specify it twice to run the compiled program too and thrice to recompile it completely (make fresh) before running.
 
 =item B<--reset>
 
