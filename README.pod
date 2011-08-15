@@ -12,7 +12,9 @@ B<vfnmake> B<--version>
 
 =head1 DESCRIPTION
 
-vfnmake works on fire-and-forget basis with as few configuration as possible. It does not try to compete with CMake or Autotools. I wrote it because writting Makefiles, while not difficult, can be really tedious even for the simple projects. To enable linking with Assembly, use B<--asm>/B<--asm64> options.
+vfnmake works on fire-and-forget basis with as few configuration as possible. It does not try to compete with CMake or Autotools (yet ;) ). I wrote it because writting Makefiles, while not difficult, can be really tedious even for the simple projects. Some features may seem strange but keep in mind that I write it mostly for myself.
+
+To enable linking with Assembly, use B<--asm>/B<--asm64> options.
 
 Qt4 is kind of supported (B<--qt> option) but you have to rename your headers that use QObject so they will end with I<_qt.hpp>.
 
@@ -176,7 +178,15 @@ Use I<dir> as the working directory.
 
 =item B<-r>, B<--run>
 
-Run make automatically. Specify it twice to run the compiled program too and thrice to recompile it completely (make fresh) before running.
+Run make automatically. It can do various other things depending on the times it is specified:
+
+-r - just run make
+
+-rr - run make and then the compiled program
+
+-rrr - run make clean and make
+
+-rrrr - run make clean, make, and the compiled program
 
 =item B<--reset>
 
