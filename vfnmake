@@ -16,6 +16,9 @@ my $docmsg;
 if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc    = "$FindBin::RealBin/README.pod";
     $docmsg = "\nTry `vfnmake --help'\n";
+} elsif ( -f "/usr/share/doc/vfnmake/vfnmake.pod" ) {
+    $doc    = "/usr/share/doc/vfnmake/vfnmake.pod";
+    $docmsg = "\nTry `vfnmake --help'\n";
 }
 
 $main::VERSION = "1.0.2";
