@@ -32,6 +32,14 @@ For a complete list of arguments, see below.
 
 =over 4
 
+=item B<-h>, B<--help>
+
+Display the brief version of this help.
+
+=item B<--man>
+
+Display the full version of this help.
+
 =item B<--name> I<name>
 
 Specify the name of the executable file. Default: a.out
