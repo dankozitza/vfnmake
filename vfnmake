@@ -12,12 +12,13 @@ Getopt::Long::Configure("bundling",
                         "pass_through");
 use Pod::Usage;
 my $doc;
-my $docmsg = "\nTry `vfnmake --help'\n" unless $FindBin::RealScript eq "configure.pl";
+my $docmsg = "";
+$docmsg = "\nTry `vfnmake --help'\n" unless $FindBin::RealScript eq "configure.pl";
 if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc    = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.0.3";
+$main::VERSION = "1.0.4";
 
 my $HOME = $ENV{HOME};
 
@@ -446,7 +447,9 @@ print $file "$config";
 close($file);
 print "$config" unless $quiet or $stdout;
 
-if ($run == 1) {
+if ($run && @ARGV) {
+    system("make " . "@ARGV");
+} elsif ($run == 1) {
     system("make");
 } elsif ($run == 2) {
     system("make run");

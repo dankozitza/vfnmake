@@ -1,0 +1,87 @@
+#compdef vfnmake
+
+local context state line
+typeset -A opt_args
+
+_arguments -s -S \
+    "--gcc[use only gcc]" \
+    "(--no-asm --asm64)--asm[enable x86 Assembly support]" \
+    "(--no-asm --asm)--asm64[enable x86_64 Assembly support]" \
+    "(--asm --asm64)--no-asm[disable Assembly support]" \
+    "-q[run quietly]" \
+    "--quiet[run quietly]" \
+    "*-r[compile automatically]" \
+    "*--run[run automatically]" \
+    "--name+[set the name of the executable]:name" \
+    "--src+[specify the directory with the source]:source dir:_files -/" \
+    "--objs+[specify the directory for the *.o files]:objs dir:_files -/" \
+    "--bin+[specify the directory for the executable file]:bin dir:_files -/" \
+    \
+    "-O+[set the optimization level]:optimization level:_values Coptimization 0 1 2 3 s" \
+    \
+    "--cc+[set the C compiler list]:comma separated list of C compilers" \
+    "--cxx+[set the C++ compiler list]:comma separated list of C++ compilers" \
+    "--dcc+[set the C debug compiler]:C compiler" \
+    "--dcxx+[set the C++ debug compiler]:C++ compiler" \
+    \
+    "*-c+[add a cflag]:cflag:" \
+    "*--cflag=[add a cflag]:cflag:" \
+    "*-C+[remove a cflag]:cflag:" \
+    "*--Cflag=[remove a cflag]:cflag:" \
+    "*--cflags=[set the cflags list]:comma separated list of cflags:" \
+    \
+    "*-x+[add a cxxflag]:cxxflag:" \
+    "*--cxxflag=[add a cxxflag]:cxxflag:" \
+    "*-X+[remove a cxxflag]:cxxflag:" \
+    "*--Cxxflag=[remove a cxxflag]:cxxflag:" \
+    "*--cxxflags=[set the cxxflags list]:comma separated list of cxxflags:" \
+    \
+    "*-l+[add a library]:library:" \
+    "*--lib=[add a library]:library:" \
+    "*-L+[remove a library]:library:" \
+    "*--Lib=[remove a library]:library:" \
+    "*--libs=[set the libraries list]:comma separated list of libraries:" \
+    \
+    "*-x+[add a cxxflag]:cxxflag:" \
+    "*--cxxflag=[add a cxxflag]:cxxflag:" \
+    "*-X+[remove a cxxflag]:cxxflag:" \
+    "*--Cxxflag=[remove a cxxflag]:cxxflag:" \
+    "*--cxxflags=[set the cxxflags list]:comma separated list of cxxflags:" \
+    \
+    "*-p+[add a package]:package:" \
+    "*--pkg=[add a package]:package:" \
+    "*-P+[remove a package]:package:" \
+    "*--Pkg=[remove a package]:package:" \
+    "*--pkgs=[set the packages list]:comma separated list of packages:" \
+    \
+    "*--lflag=[add a lflag]:lflag:" \
+    "*--Lflag=[remove a lflag]:lflag:" \
+    "*--lflags=[set the lflags list]:comma separated list of lflags:" \
+    \
+    "(--no-echo --noe -e)--echo[print the executed commands]" \
+    "(--no-echo --noe --echo)-e[print the executed commands]" \
+    "(--echo -e --noe)--no-echo[do not print the executed commands]" \
+    "(--echo -e --no-echo)--noe[do not print the executed commands]" \
+    "(--no-qt)--qt[enable Qt4 support]" \
+    "(--qt)--no-qt[disable Qt4 support]" \
+    "(--no-cpp0x)--cpp0x[enable c++0x support]" \
+    "(--cpp0x)--no-cpp0x[disable c++0x support]" \
+    \
+    "--stdout[print the Makefile to stdout]" \
+    "(-f)--file=[select the config file]:config file:_files" \
+    "(--file)-f+[select the config file]:config file:_files" \
+    "(-d)--dir=[select the working directory]: dir:_files" \
+    "(--dir)-d+[select the working directory]: dir:_files" \
+    "(-i)--ignore[run even when there are no supported file detected]" \
+    "(--ignore)-i[run even when there are no supported file detected]" \
+    \
+    "--configure[copy vfnmake to the working directory]" \
+    "--convert[convert the old config file to the new format]" \
+    \
+    "(-)--version[print the version number]" \
+    "(-)--help[display the help]" \
+    "(-)-h[display the help]" \
+    "(-)--man[display the manpage]" \
+    && return 0
+
+return 1

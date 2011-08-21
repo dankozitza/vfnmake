@@ -18,15 +18,7 @@ To enable linking with Assembly, use B<--asm>/B<--asm64> options.
 
 Qt4 is kind of supported (B<--qt> option) but you have to rename your headers that use QObject so they will end with I<_qt.hpp>.
 
-To generate a Makefile for a program not using any external libraries with no compilation flags just type:
-
-S<        B<vfnmake>>
-
-If you need to link for example ncurses and want to use the -Wall flag, type this:
-
-S<        B<vfnmake --lib=ncurses --cflag=-Wall>>
-
-For a complete list of arguments, see below.
+For the complete list of arguments, see below.
 
 =head1 OPTIONS
 
@@ -188,6 +180,8 @@ Run make automatically. It can do various other things depending on the times it
 
 -rrrr - run make clean, make, and the compiled program
 
+You can specify the arguments for make after "--" to override this behavior.
+
 =item B<--reset>
 
 Set the default compiler lists and directories.
@@ -234,7 +228,7 @@ compile and run
 
 =head1 THE CONFIG FILES
 
-The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vfnmake.conf> in that order. Additionaly there are two other files - F<vfnmake.begin> and F<vfnmake.end>. For their function see below.
+The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vfnmake.conf> in that order. The F<vfnmake.conf> in the working directory is automatically modified on each run. Additionaly there are two other files - F<vfnmake.begin> and F<vfnmake.end>. Their role is described below.
 
 =head2 vfnmake.conf syntax
 
@@ -265,6 +259,28 @@ Whatever is in this file, will be in the Makefile right after the initialization
 =head2 vfnmake.end
 
 Just like I<vfnmake.begin> but is put at the end of the Makefile. Can be used to add some custom targets without affecting the default one.
+
+=head1 EXAMPLES
+
+To generate a Makefile for a program not using any external libraries with no compilation flags just type:
+
+S<        B<vfnmake>>
+
+To compile it afterwards, add B<-r>:
+
+S<        B<vfnmake -r>>
+
+Adding B<--quiet> will result in the automagical version of make:
+
+S<        B<vfnmake -qr>>
+
+You can specify the make target (for example I<debug>) for the B<-r> flag in the following way (note the space after "--"!):
+
+S<        B<vfnmake -qr -- debug>>
+
+If you need to link the ncurses library and want to use the -Wall flag, use this:
+
+S<        B<vfnmake --lib=ncurses --cflag=-Wall>>
 
 =head1 AUTHOR
 
