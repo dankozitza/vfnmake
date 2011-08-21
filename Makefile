@@ -46,9 +46,9 @@ vfnmake_with_pod: vfnmake README.pod
 
 .PHONY: install
 install: vfnmake.1.gz vfnmake.conf vfnmake_with_pod _vfnmake
-	@ install -D -m 755 -o root -g root vfnmake_with_pod ${PREFIX}/bin/vfnmake
+	@ install -D -m 755 -o root -g root vfnmake_with_pod $(PREFIX)/bin/vfnmake
 	@ echo "[1;32m*[0m vfnmake installed"
-	@ install -D -m 644 -o root -g root vfnmake.1.gz ${PREFIX}/share/man/man1/vfnmake.1.gz
+	@ install -D -m 644 -o root -g root vfnmake.1.gz $(PREFIX)/share/man/man1/vfnmake.1.gz
 	@ echo "[1;32m*[0m manpage installed"
 	@ install -D -m 644 -o root -g root vfnmake.conf /etc/vfnmake.conf
 	@ echo "[1;32m*[0m empty config file installed in /etc/vfnmake.conf"
@@ -58,8 +58,8 @@ install: vfnmake.1.gz vfnmake.conf vfnmake_with_pod _vfnmake
 
 .PHONY: uninstall
 uninstall:
-	@ rm ${PREFIX}/bin/vfnmake
-	@ rm ${PREFIX}/share/man/man1/vfnmake.1.gz
+	@ rm $(PREFIX)/bin/vfnmake
+	@ rm $(PREFIX)/share/man/man1/vfnmake.1.gz
 	@ rm /usr/share/zsh/site-functions/_vfnmake
 	@ rm /etc/vfnmake.conf
 	@ echo "[1;32m*[0m vfnmake removed"

@@ -12,7 +12,7 @@ B<vfnmake> B<--version>
 
 =head1 DESCRIPTION
 
-vfnmake works on fire-and-forget basis with as few configuration as possible. It does not try to compete with CMake or Autotools (yet ;) ). I wrote it because writting Makefiles, while not difficult, can be really tedious even for the simple projects. Some features may seem strange but keep in mind that I write it mostly for myself.
+vfnmake works on fire-and-forget basis with as few configuration as possible. It does not try to compete with CMake or Autotools (yet ;) ). I wrote it because writing Makefiles, while not difficult, can be really tedious even for the simple projects. Some features may seem strange but keep in mind that I write it mostly for myself.
 
 To enable linking with Assembly, use B<--asm>/B<--asm64> options.
 
@@ -189,6 +189,12 @@ Set the default compiler lists and directories.
 =item B<-i>, B<--ignore>
 
 Generate the Makefile even if there are no C/C++ files (used mainly with vfnmake.begin/end).
+
+=item B<--legacy>
+
+=item S<   B<--legacy>>
+
+Enable/disable compatibility mode with the older versions of GNU Make. It effectively disables debugging options.
 
 =item B<--configure>
 

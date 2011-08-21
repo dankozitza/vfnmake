@@ -46,6 +46,7 @@ my $configName = "vfnmake.conf";
 my $qt;
 my $convert;
 my $run;
+my $legacy;
 
 my $file;
 
@@ -139,6 +140,7 @@ GetOptions(
                                     } else {
                                         $qt = 2 # reset
                                     } },
+           'legacy'        => \$legacy,
            'configure'     => sub { copy($FindBin::RealBin . '/' . $FindBin::RealScript, "./configure.pl") or die "Copy failed\n";
                                     chmod(0755, "./configure.pl") or "Chmod failed\n"; },
            'help|h'        => sub { pod2usage({ -input => $doc, -verbose => 1 }) or die if $FindBin::RealScript eq "vfnmake";
@@ -168,6 +170,7 @@ $echo      = 0 if $echo    eq "";
 $quiet     = 0 if $quiet   eq "";
 $stdout    = 0 if $stdout  eq "";
 $ignore    = 0 if $ignore  eq "";
+$legacy    = 0 if $legacy  eq "";
 $asm       = 0 if $asm     eq "";
 $qt        = 0 if $qt      eq "";
 if ($qt == 1) {
@@ -374,21 +377,23 @@ fresh: clean
 .PHONY: r run
 r: run
 run: all
-	@ ./$binDir/$name
+	@ ./$binDir/$name\n\n";
 
-.PHONY: d debug
+unless ($legacy) {
+    $make .= ".PHONY: d debug
 d: debug
 debug: CFLAGS += -DDEBUG -g
 debug: O=-O0
 debug: CC=$dcc
 debug: CXX=$dcxx\n";
 
-$make .= "debug: ASM += -g\n" if $asm;
+    $make .= "debug: ASM += -g\n" if $asm;
 
-$make .= "debug: all
+    $make .= "debug: all\n\n";
+}
 
 # Emacs flymake-mode
-.PHONY: check-syntax
+$make .= ".PHONY: check-syntax
 check-syntax:
 	g++ \$(CXXFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)\n";
 
@@ -430,6 +435,7 @@ my @config = (
               [ echo            => $echo      ],
               [ asm             => $asm       ],
               [ qt              => $qt        ],
+              [ legacy          => $legacy    ],
              );
 
 for my $p (@config) {
@@ -535,6 +541,8 @@ sub loadConfig {
                 chomp ($asm = $line2);
             } elsif ($line eq "qt:\n") {
                 chomp ($qt = $line2);
+            } elsif ($line eq "legacy:\n") {
+                chomp ($legacy = $line2);
             }
         }
         close($file);

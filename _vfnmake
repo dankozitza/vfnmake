@@ -1,4 +1,11 @@
+# -*- shell-script -*-
 #compdef vfnmake
+
+###########################################################################################
+#                                                                                         #
+#  This is a Z-Shell completion script. Put it in /usr/share/zsh/site-functions/_vfnmake  #
+#                                                                                         #
+###########################################################################################
 
 local context state line
 typeset -A opt_args
@@ -11,18 +18,18 @@ _arguments -s -S \
     "-q[run quietly]" \
     "--quiet[run quietly]" \
     "*-r[compile automatically]" \
-    "*--run[run automatically]" \
-    "--name+[set the name of the executable]:name" \
-    "--src+[specify the directory with the source]:source dir:_files -/" \
-    "--objs+[specify the directory for the *.o files]:objs dir:_files -/" \
-    "--bin+[specify the directory for the executable file]:bin dir:_files -/" \
+    "*--run[compile automatically]" \
+    "--name=[set the name of the executable]:name of the executable" \
+    "--src=[specify the directory with the source]:source directory:_files -/" \
+    "--objs=[specify the directory for the *.o files]:objs directory:_files -/" \
+    "--bin=[specify the directory for the executable file]:bin directory:_files -/" \
     \
     "-O+[set the optimization level]:optimization level:_values Coptimization 0 1 2 3 s" \
     \
-    "--cc+[set the C compiler list]:comma separated list of C compilers" \
-    "--cxx+[set the C++ compiler list]:comma separated list of C++ compilers" \
-    "--dcc+[set the C debug compiler]:C compiler" \
-    "--dcxx+[set the C++ debug compiler]:C++ compiler" \
+    "--cc=[set the C compiler list]:comma separated list of C compilers" \
+    "--cxx=[set the C++ compiler list]:comma separated list of C++ compilers" \
+    "(--legacy)--dcc=[set the C debug compiler]:C compiler" \
+    "(--legacy)--dcxx=[set the C++ debug compiler]:C++ compiler" \
     \
     "*-c+[add a cflag]:cflag:" \
     "*--cflag=[add a cflag]:cflag:" \
@@ -70,10 +77,11 @@ _arguments -s -S \
     "--stdout[print the Makefile to stdout]" \
     "(-f)--file=[select the config file]:config file:_files" \
     "(--file)-f+[select the config file]:config file:_files" \
-    "(-d)--dir=[select the working directory]: dir:_files" \
-    "(--dir)-d+[select the working directory]: dir:_files" \
-    "(-i)--ignore[run even when there are no supported file detected]" \
-    "(--ignore)-i[run even when there are no supported file detected]" \
+    "(-d)--dir=[select the working directory]:working directory:_files" \
+    "(--dir)-d+[select the working directory]:working directory:_files" \
+    "(-i)--ignore[run even when there are no supported files detected]" \
+    "(--ignore)-i[run even when there are no supported files detected]" \
+    "(--dcc --dcxx)--legacy[disable the debugging options]" \
     \
     "--configure[copy vfnmake to the working directory]" \
     "--convert[convert the old config file to the new format]" \
