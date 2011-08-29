@@ -154,7 +154,13 @@ Enable Qt4 meta-object support for files named *_qt.hpp and add some useful flag
 
 =item B<-q>, B<--quiet>
 
-Do not print the used config.
+Do not print the config variables.
+
+NOTE: Since 1.0.6 it is the default behavior so it effectively doesn't do anything.
+
+=item B<-v>, B<--verbose>
+
+Do print the config variables.
 
 =item B<--stdout>
 
@@ -190,7 +196,7 @@ Set the default compiler lists and directories.
 
 Generate the Makefile even if there are no C/C++ files (used mainly with vfnmake.begin/end).
 
-=item B<--legacy>
+=item B<--no-legacy>
 
 =item S<   B<--legacy>>
 

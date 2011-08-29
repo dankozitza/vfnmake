@@ -18,7 +18,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc    = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.0.5";
+$main::VERSION = "1.0.6";
 
 my $HOME = $ENV{HOME};
 
@@ -98,6 +98,7 @@ GetOptions(
            'O=s'           => \$O,
            'echo|e!'       => \$echo,
            'quiet|q'       => \$quiet,
+           'verbose|v'     => sub { $quiet = !$_[1] },
            'stdout'        => \$stdout,
            'cpp0x!'         => sub { if ($_[1]) {
                                         addToArray("-std=c++0x", \@cxxflags);
@@ -165,11 +166,11 @@ $objsDir ||= "objs";
 $dcc     ||= "gcc";
 $dcxx    ||= "g++";
 $name    ||= "a.out";
+$quiet   //= 1;
+$stdout  //= 0;
+$ignore  //= 0;
 $O         = 2 if $O       eq "";
 $echo      = 0 if $echo    eq "";
-$quiet     = 0 if $quiet   eq "";
-$stdout    = 0 if $stdout  eq "";
-$ignore    = 0 if $ignore  eq "";
 $legacy    = 0 if $legacy  eq "";
 $asm       = 0 if $asm     eq "";
 $qt        = 0 if $qt      eq "";
@@ -445,7 +446,7 @@ for my $p (@config) {
     } else {
         $str = $p->[1];
     }
-    $config .= printColumns($p->[0] . ':', $str, 20) . "\n";
+    $config .= sprintf("%-20s%s\n", $p->[0] . ':', $str);
 }
 
 open($file, '>', $configName) or die;
@@ -486,13 +487,6 @@ sub selectCompiler {
              !cmdExist($compiler));
     $compiler = "" unless cmdExist($compiler);
     return $compiler;
-}
-sub printColumns {
-    my ($first, $second, $width) = @_;
-    $first .= ' ' x ($width - length($first));
-    my $ret = $first . $second;
-    $ret =~ s/\s*$//;
-    return $ret;
 }
 sub loadConfig {
     if ( -r $_[0] ) {

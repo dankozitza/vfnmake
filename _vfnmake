@@ -17,6 +17,8 @@ _arguments -s -S \
     "(--asm --asm64)--no-asm[disable Assembly support]" \
     "-q[run quietly]" \
     "--quiet[run quietly]" \
+    "-v[be verbose]" \
+    "--verbose[be verbose]" \
     "*-r[compile automatically]" \
     "*--run[compile automatically]" \
     "--name=[set the name of the executable]:name of the executable" \
@@ -24,7 +26,7 @@ _arguments -s -S \
     "--objs=[specify the directory for the *.o files]:objs directory:_files -/" \
     "--bin=[specify the directory for the executable file]:bin directory:_files -/" \
     \
-    "-O+[set the optimization level]:optimization level:_values Coptimization 0 1 2 3 s" \
+    "-O+[set the optimization level]:optimization level:(0 1 2 3 s)" \
     \
     "--cc=[set the C compiler list]:comma separated list of C compilers" \
     "--cxx=[set the C++ compiler list]:comma separated list of C++ compilers" \
