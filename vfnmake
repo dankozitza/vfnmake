@@ -15,10 +15,10 @@ my $doc;
 my $docmsg = "";
 $docmsg = "\nTry `vfnmake --help'\n" unless $FindBin::RealScript eq "configure.pl";
 if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
-    $doc    = "$FindBin::RealBin/README.pod";
+    $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.0.6";
+$main::VERSION = "1.0.7";
 
 my $HOME = $ENV{HOME};
 
@@ -100,33 +100,18 @@ GetOptions(
            'quiet|q'       => \$quiet,
            'verbose|v'     => sub { $quiet = !$_[1] },
            'stdout'        => \$stdout,
-           'cpp0x!'         => sub { if ($_[1]) {
+           'cpp0x|cpp11!'  => sub { if ($_[1]) {
                                         addToArray("-std=c++0x", \@cxxflags);
-                                        @cc    = ("gcc");
-                                        @cxx   = ("g++");
-                                        $dcc   =  "gcc";
-                                        $dcxx  =  "g++";
                                     } else {
                                         removeFromArray("-std=c++0x", \@cxxflags);
-                                        @cc    = ();
-                                        @cxx   = ();
-                                        $dcc   = "";
-                                        $dcxx  = "";
                                     } },
            'gcc'           => sub { @cc    = ("gcc");
                                     @cxx   = ("g++");
                                     $dcc   =  "gcc";
                                     $dcxx  =  "g++"; },
-           'reset'         => sub { @cc       = ();
-                                    @cxx      = ();
-                                    $dcc      = "";
-                                    $dcc      = "";
-                                    $src      = "";
-                                    $binDir   = "";
-                                    $objsDir  = ""; },
            'ignore|i'      => \$ignore,
            'run|r+'        => \$run,
-           'asm!'          => sub { if ($_[1]) {
+           'asm|asm32!'    => sub { if ($_[1]) {
                                         $asm = 32
                                     } else {
                                         $asm = 0
@@ -201,8 +186,8 @@ die "No supported files detected\n" if ( !$ignore    and
                                          !($asm and @ASMFiles) );
 
 my @objs =  (@CFiles, @CPPFiles, @ASMFiles);
-s#^.*/(.*)\.[^\.]*$#$objsDir/$1.o# foreach @objs;
-foreach my $qt (@QTFiles) {
+s#^.*/(.*)\.[^\.]*$#$objsDir/$1.o# for @objs;
+for my $qt (@QTFiles) {
     my $tmp = $qt;
     $tmp =~ s#^.*/(.*)\.[^\.]*$#$objsDir/moc_$1.o#;
     push @objs, $tmp;
@@ -212,10 +197,10 @@ my $objs =  join(' ', @objs);
 my $cflags   = join(' ', @cflags);
 my $cxxflags = join(' ', @cxxflags);
 my $lflags   = "";
-foreach my $flag (@lflags) {
+for my $flag (@lflags) {
     $lflags .= "$flag ";
 }
-foreach my $lib (@libs) {
+for my $lib (@libs) {
     $lflags .= "-l $lib ";
 }
 my $pkgs;
@@ -292,7 +277,7 @@ $binDir/$name: \$(OBJS)
 
 
 # creating the targets
-foreach my $CFile (@CFiles) {
+for my $CFile (@CFiles) {
     my $deps = `gcc -MM "$CFile"`;    # some compilers have problems sometimes, so I've hardcoded gcc here
     chomp $deps;
     if ($echo) {
@@ -306,7 +291,7 @@ $objsDir/$deps
 	@ \$(CC) \$(CFLAGS) -c \"$CFile\" -o \$@";
     }
 }
-foreach my $CPPFile (@CPPFiles) {
+for my $CPPFile (@CPPFiles) {
     my $deps = `g++ -MM "$CPPFile"`;
     chomp $deps;
     if ($echo) {
@@ -344,7 +329,7 @@ objs/moc_\%_qt.o: $src/moc/moc_\%_qt.cpp
 }
 
 if ($asm) {
-    foreach my $ASMFile (@ASMFiles) {
+    for my $ASMFile (@ASMFiles) {
         my $ofile = $ASMFile;
         $ofile =~ s#^.*/(.*)\.[^\.]*$#$objsDir/$1.o#;
         if ($echo) {

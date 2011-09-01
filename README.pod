@@ -14,7 +14,7 @@ B<vfnmake> B<--version>
 
 vfnmake works on fire-and-forget basis with as few configuration as possible. It does not try to compete with CMake or Autotools (yet ;) ). I wrote it because writing Makefiles, while not difficult, can be really tedious even for the simple projects. Some features may seem strange but keep in mind that I write it mostly for myself.
 
-To enable linking with Assembly, use B<--asm>/B<--asm64> options.
+To enable linking with Assembly, use B<--asm32>/B<--asm64> options.
 
 Qt4 is kind of supported (B<--qt> option) but you have to rename your headers that use QObject so they will end with I<_qt.hpp>.
 
@@ -128,15 +128,21 @@ Print the executed commands or not. Default: --no-echo
 
 Use only gcc/g++.
 
+=item B<--cpp11>
+
+=item S<   B<--cpp1>>
+
+Use C++11 standard.
+
 =item B<--no-cpp0x>
 
 =item S<   B<--cpp0x>>
 
-Use c++0x standard and switch to gcc/g++.
+alias to --cpp11
 
-=item B<--no-asm>
+=item B<--no-asm32>
 
-=item S<   B<--asm>>
+=item S<   B<--asm32>>
 
 Enable 32-bit Assembly support (only nasm). Default: --no-asm
 
@@ -145,6 +151,12 @@ Enable 32-bit Assembly support (only nasm). Default: --no-asm
 =item S<   B<--asm64>>
 
 Enable 64-bit Assembly support (only nasm). Default: --no-asm64
+
+=item B<--no-asm>
+
+=item S<   B<--asm>>
+
+alias to --asm32
 
 =item B<--no-qt>
 
@@ -187,10 +199,6 @@ Run make automatically. It can do various other things depending on the times it
 -rrrr - run make clean, make, and the compiled program
 
 You can specify the arguments for make after "--" to override this behavior.
-
-=item B<--reset>
-
-Set the default compiler lists and directories.
 
 =item B<-i>, B<--ignore>
 
@@ -270,7 +278,7 @@ Whatever is in this file, will be in the Makefile right after the initialization
 
 =head2 vfnmake.end
 
-Just like I<vfnmake.begin> but is put at the end of the Makefile. Can be used to add some custom targets without affecting the default one.
+Just like F<vfnmake.begin> but is put at the end of the Makefile. Can be used to add some custom targets without affecting the default one.
 
 =head1 EXAMPLES
 
@@ -278,17 +286,13 @@ To generate a Makefile for a program not using any external libraries with no co
 
 S<        B<vfnmake>>
 
-To compile it afterwards, add B<-r>:
+You can add B<-r> to turn vfnmake into the automagic make - it will run the generated Makefile afterwards:
 
 S<        B<vfnmake -r>>
 
-Adding B<--quiet> will result in the automagical version of make:
-
-S<        B<vfnmake -qr>>
-
 You can specify the make target (for example I<debug>) for the B<-r> flag in the following way (note the space after "--"!):
 
-S<        B<vfnmake -qr -- debug>>
+S<        B<vfnmake -r -- debug>>
 
 If you need to link the ncurses library and want to use the -Wall flag, use this:
 
