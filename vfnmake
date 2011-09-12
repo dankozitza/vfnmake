@@ -18,7 +18,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.0.7";
+$main::VERSION = "1.0.10";
 
 my $HOME = $ENV{HOME};
 
@@ -317,13 +317,13 @@ $src/moc:
 .PRECIOUS: $src/moc/moc_\%_qt.cpp";
     if ($echo) {
         $make .= "
-$src/moc/moc_\%_qt.cpp: $src/moc $src/\%_qt.hpp
+$src/moc/moc_\%_qt.cpp: $src/\%_qt.hpp | $src/moc
 	moc \"$src/\$*_qt.hpp\" -o \$@
 objs/moc_\%_qt.o: $src/moc/moc_\%_qt.cpp
 	\$(CXX) \$(CXXFLAGS) -c \"$src/moc/moc_\$*_qt.cpp\" -o \$@";
     } else {
         $make .= "
-$src/moc/moc_\%_qt.cpp: $src/moc $src/\%_qt.hpp
+$src/moc/moc_\%_qt.cpp: $src/\%_qt.hpp | $src/moc
 	@ echo \"    MOC  $src/\$*_qt.hpp\"
 	@ moc \"$src/\$*_qt.hpp\" -o \$@
 objs/moc_\%_qt.o: $src/moc/moc_\%_qt.cpp
