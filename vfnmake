@@ -245,9 +245,9 @@ my $linker;
 # write the macros
 my $make = "CC=$cc\n";
 $make .= "CXX=$cxx\n" if @CPPFiles;
-$make .= "CFLAGS=\$(O) $cflags
-CXXFLAGS=\$(CFLAGS) $cxxflags
-O=-O$O
+$make .= "CFLAGS=\$(O) $cflags\n";
+$make .= "CXXFLAGS=\$(CFLAGS) $cxxflags\n" if @CPPFiles;
+$make .= "O=-O$O
 LFLAGS=$lflags
 OBJS=$objs\n";
 
@@ -374,11 +374,9 @@ unless ($legacy) {
 d: debug
 debug: CFLAGS += -DDEBUG -g
 debug: O=-O0
-debug: CC=$dcc
-debug: CXX=$dcxx\n";
-
+debug: CC=$dcc\n";
+    $make .= "debug: CXX=$dcxx\n" if @CPPFiles;
     $make .= "debug: ASM += -g\n" if $asm;
-
     $make .= "debug: all\n\n";
 }
 
