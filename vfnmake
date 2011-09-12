@@ -109,6 +109,10 @@ GetOptions(
                                     @cxx   = ("g++");
                                     $dcc   =  "gcc";
                                     $dcxx  =  "g++"; },
+           'nogcc|no-gcc'        => sub { @cc    = ();
+                                    @cxx   = ();
+                                    $dcc   = "";
+                                    $dcxx  = ""; },
            'ignore|i'      => \$ignore,
            'run|r+'        => \$run,
            'asm|asm32!'    => sub { if ($_[1]) {

@@ -128,6 +128,10 @@ Print the executed commands or not. Default: --no-echo
 
 Use only gcc/g++.
 
+=item B<--no-gcc>
+
+Use the default compiler list..
+
 =item B<--cpp11>
 
 =item S<   B<--cpp1>>
