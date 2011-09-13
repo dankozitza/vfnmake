@@ -11,7 +11,8 @@ local context state line
 typeset -A opt_args
 
 _arguments -s -S \
-    "--gcc[use only gcc]" \
+    "(--no-gcc)--gcc[use only gcc]" \
+    "(--gcc)--no-gcc[use the default compilers]" \
     "(--no-asm --asm64)--asm[enable x86 Assembly support]" \
     "(--no-asm --asm32)--asm64[enable x86_64 Assembly support]" \
     "(--asm32 --asm64)--no-asm[disable Assembly support]" \
