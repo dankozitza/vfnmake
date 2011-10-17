@@ -18,7 +18,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.0.10";
+$main::VERSION = "1.0.11";
 
 my $HOME = $ENV{HOME};
 
@@ -130,7 +130,7 @@ GetOptions(
                                     } else {
                                         $qt = 2 # reset
                                     } },
-           'legacy'        => \$legacy,
+           'legacy!'       => \$legacy,
            'configure'     => sub { copy($FindBin::RealBin . '/' . $FindBin::RealScript, "./configure.pl") or die "Copy failed\n";
                                     chmod(0755, "./configure.pl") or "Chmod failed\n"; },
            'help|h'        => sub { pod2usage({ -input => $doc, -verbose => 1 }) or die if $FindBin::RealScript eq "vfnmake";
