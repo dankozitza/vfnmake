@@ -84,7 +84,8 @@ _arguments -s -S \
     "(--dir)-d+[select the working directory]:working directory:_files" \
     "(-i)--ignore[run even when there are no supported files detected]" \
     "(--ignore)-i[run even when there are no supported files detected]" \
-    "(--dcc --dcxx)--legacy[disable the debugging options]" \
+    "(--dcc --dcxx --no-legacy)--legacy[disable the debugging options]" \
+    "(--legacy)--no-legacy[disable the debugging options]" \
     \
     "--configure[copy vfnmake to the working directory]" \
     "--convert[convert the old config file to the new format]" \
