@@ -18,7 +18,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.0.11";
+$main::VERSION = "1.0.12";
 
 my $HOME = $ENV{HOME};
 
@@ -181,7 +181,7 @@ find( sub { push @CPPFiles, "$File::Find::name" if /^(?!moc_).*\.cpp$/ and !/^\.
 my @QTFiles;
 find( sub { push @QTFiles , "$File::Find::name" if /_qt\.hpp$/         and !/^\.?#/ }, $src) if $qt;
 my @ASMFiles;
-find( sub { push @ASMFiles, "$File::Find::name" if /\.(:?asm|s|S)$/    and !/^\.?#/ }, $src) if $asm;
+find( sub { push @ASMFiles, "$File::Find::name" if /\.(?:asm|s|S)$/    and !/^\.?#/ }, $src) if $asm;
 
 die "No supported files detected\n" if ( !$ignore    and
                                          !@CFiles    and
