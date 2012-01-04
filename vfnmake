@@ -412,6 +412,7 @@ if ($stdout) {
             chomp $overwrite;
             exit 0 if $overwrite ne "y";
         }
+        close($file);
     }
     my $md5 = md5_hex($make);
     open($file, '>', "Makefile") or die;
