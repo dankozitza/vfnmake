@@ -5,11 +5,14 @@ use File::Find;
 use FindBin;
 use File::Copy;
 use Getopt::Long;
-Getopt::Long::Configure("bundling",
-                        "no_ignore_case",
-                        "no_auto_abbrev",
-                        "auto_version",
-                        "pass_through");
+use Digest::MD5 qw(md5_hex);
+Getopt::Long::Configure(qw(
+                              bundling
+                              no_ignore_case
+                              no_auto_abbrev
+                              auto_version
+                              pass_through
+                         ));
 use Pod::Usage;
 my $doc;
 my $docmsg = "";
@@ -18,9 +21,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.0.12";
-
-my $HOME = $ENV{HOME};
+$main::VERSION = "1.1.0";
 
 # variables
 my $src;
@@ -60,7 +61,7 @@ GetOptions(
 Getopt::Long::Configure("no_pass_through");
 
 loadConfig("/etc/vfnmake.conf");
-loadConfig("$HOME/.vfnmake.conf");
+loadConfig("$ENV{HOME}/.vfnmake.conf");
 loadConfig("vfnmake.conf");
 
 # argument parsing
@@ -397,7 +398,24 @@ if ( -f "vfnmake.end" ) {
 if ($stdout) {
     print "$make";
 } else {
+    if (open($file, '<', "Makefile")) {
+        my $md5_old = <$file>;
+        chomp $md5_old;
+        $md5_old =~ s/^# //;
+        my $tmp = $/;
+        local $/;
+        my $md5_new = md5_hex(<$file>);
+        $/ = $tmp;
+        if ($md5_old ne $md5_new) {
+            print "The existing Makefile was modified or was not created by vfnmake.\nDo you want to overwrite it? [y/n] ";
+            my $overwrite = <STDIN>;
+            chomp $overwrite;
+            exit 0 if $overwrite ne "y";
+        }
+    }
+    my $md5 = md5_hex($make);
     open($file, '>', "Makefile") or die;
+    print $file "# $md5\n";
     print $file "$make";
     close($file);
 }
