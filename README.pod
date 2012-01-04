@@ -308,7 +308,7 @@ vfnmake was written by Wojciech 'Vifon' Siewierski <darkvifon at gmail dot com>.
 
 =head1 ACKNOWLEDGEMENTS
 
-Thanks to Tadeusz Sośnierz for some advices and fixes.
+Thanks to Tadeusz Sośnierz for some advices and fixes, Maciej Grzybek for some ideas and Mateusz Makowski for bug reports.
 
 =head1 SEE ALSO
 

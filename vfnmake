@@ -272,12 +272,12 @@ all: objs $name";
 if ($echo) {
     $make .= "\n
 $binDir/$name: \$(OBJS)
-	$linker \$(LFLAGS) \$(OBJS) -o \"$binDir/$name\"\n";
+	$linker \$(OBJS) -o \"$binDir/$name\" \$(LFLAGS)\n";
 } else {
     $make .= "\n
 $binDir/$name: \$(OBJS)
 	@ echo \"    LINK $binDir/$name\"
-	@ $linker \$(LFLAGS) \$(OBJS) -o \"$binDir/$name\"\n";
+	@ $linker \$(OBJS) -o \"$binDir/$name\" \$(LFLAGS)\n";
 }
 
 
