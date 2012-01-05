@@ -373,7 +373,7 @@ run: all
 unless ($legacy) {
     $make .= ".PHONY: d debug
 d: debug
-debug: CFLAGS += -DDEBUG -g
+debug: CFLAGS += -DDEBUG -g -Wall -Wextra
 debug: O=-O0
 debug: CC=$dcc\n";
     $make .= "debug: CXX=$dcxx\n" if @CPPFiles;
