@@ -7,7 +7,7 @@ all: vfnmake.1.gz
 
 vfnmake.1.gz: README.pod
 	@ cp README.pod vfnmake.pod
-	@ pod2man vfnmake.pod > vfnmake.1
+	@ pod2man -u vfnmake.pod -o vfnmake.1
 	@ gzip -f vfnmake.1
 	@ echo "[1mDocumentation generated[0m"
 	@ rm vfnmake.pod
