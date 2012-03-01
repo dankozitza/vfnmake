@@ -21,7 +21,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.1.0";
+$main::VERSION = "1.1.1";
 
 # variables
 my $src;
