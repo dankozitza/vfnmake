@@ -21,7 +21,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.1.1";
+$main::VERSION = "1.2.0";
 
 # variables
 my $src;
@@ -31,6 +31,7 @@ my @cc;
 my @cxx;
 my $dcc;
 my $dcxx;
+my @dcflags;
 my @cflags;
 my @cxxflags;
 my @lflags;
@@ -155,6 +156,7 @@ $objsDir ||= "objs";
 @cxx       = ("clang++", "g++") unless @cxx;
 $dcc     ||= "gcc";
 $dcxx    ||= "g++";
+@dcflags   = qw(-DDEBUG -g -Wall -Wextra -Weffc++) unless @dcflags;
 $name    ||= "a.out";
 $quiet   //= 1;
 $stdout  //= 0;
@@ -371,9 +373,10 @@ run: all
 	@ ./$binDir/$name\n\n";
 
 unless ($legacy) {
+    local $" = " ";
     $make .= ".PHONY: d debug
 d: debug
-debug: CFLAGS += -DDEBUG -g -Wall -Wextra
+debug: CFLAGS += @dcflags
 debug: O=-O0
 debug: CC=$dcc\n";
     $make .= "debug: CXX=$dcxx\n" if @CPPFiles;
@@ -429,6 +432,7 @@ my @config = (
               [ cxx             => \@cxx      ],
               [ debug_cc        => $dcc       ],
               [ debug_cxx       => $dcxx      ],
+              [ debug_cflags    => \@dcflags  ],
               [ libs            => \@libs     ],
               [ pkgs            => \@pkgs     ],
               [ O               => $O         ],
@@ -533,6 +537,8 @@ sub loadConfig {
                 chomp ($dcc = $line2);
             } elsif ($line eq "debug_cxx:\n") {
                 chomp ($dcxx = $line2);
+            } elsif ($line eq "debug_cflags:\n") {
+                @dcflags = split /\s+/, $line2;
             } elsif ($line eq "echo:\n") {
                 chomp ($echo = $line2);
             } elsif ($line eq "name:\n") {

@@ -260,6 +260,7 @@ The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vf
     cxx:                compiler1 compiler2 ...
     debug_cc:           compiler
     debug_cxx:          compiler
+    debug_cflags:       flag1 flag2 ...
     libs:               lib1 lib2 ...
     pkgs:               pkg1 pkg2 ...
     O:                  0|1|2|3|s
@@ -275,6 +276,8 @@ The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vf
     qt:                 0|1
 
 To use the default value, leave the field empty.
+
+Currently there is no way to set custom "debug_cflags" without modifying the config file manually.
 
 =head2 vfnmake.begin
 
