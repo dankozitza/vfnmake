@@ -21,19 +21,16 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "1.2.0";
+$main::VERSION = "2.0.0";
 
 # variables
 my $src;
 my $binDir;
 my $objsDir;
-my @cc;
-my @cxx;
-my $dcc;
-my $dcxx;
+my $cc;
+my $cxx;
 my @dcflags;
 my @cflags;
-my @cxxflags;
 my @lflags;
 my @libs;
 my @pkgs;
@@ -52,6 +49,22 @@ my $legacy;
 
 my $file;
 
+my %configTranslation = (
+                         name           => \$name    ,
+                         src_directory  => \$src     ,
+                         bin_directory  => \$binDir  ,
+                         objs_directory => \$objsDir ,
+                         libs           => \@libs    ,
+                         pkgs           => \@pkgs    ,
+                         O              => \$O       ,
+                         cflags         => \@cflags  ,
+                         debug_cflags   => \@dcflags ,
+                         lflags         => \@lflags  ,
+                         echo           => \$echo    ,
+                         asm            => \$asm     ,
+                         qt             => \$qt      ,
+                         legacy         => \$legacy
+                        );
 
 GetOptions(
            'file|f=s'  => \$configName,
@@ -67,11 +80,6 @@ loadConfig("vfnmake.conf");
 
 # argument parsing
 GetOptions(
-           'cc=s'          => sub { @cc  = split /\s*,\s*/, $_[1] },
-           'cxx=s'         => sub { @cxx = split /\s*,\s*/, $_[1] },
-           'dcc=s'         => \$dcc,
-           'dcxx=s'        => \$dcxx,
-
            'src=s'         => \$src,
            'bin=s'         => \$binDir,
            'objs=s'        => \$objsDir,
@@ -80,10 +88,6 @@ GetOptions(
            'cflags=s'      => sub { @cflags   = split /\s*,\s*/, $_[1]  },
            'cflag|c=s'     => sub {      addToArray($_[1], \@cflags)    },
            'Cflag|C=s'     => sub { removeFromArray($_[1], \@cflags)    },
-
-           'cxxflags=s'    => sub { @cxxflags = split /\s*,\s*/, $_[1]  },
-           'cxxflag|x=s'   => sub {      addToArray($_[1], \@cxxflags)  },
-           'Cxxflag|X=s'   => sub { removeFromArray($_[1], \@cxxflags)  },
 
            'lflags=s'      => sub { @lflags   = split /\s*,\s*/, $_[1]  },
            'lflag=s'       => sub {      addToArray($_[1], \@lflags)    },
@@ -103,18 +107,10 @@ GetOptions(
            'verbose|v'     => sub { $quiet = !$_[1] },
            'stdout'        => \$stdout,
            'cpp0x|cpp11!'  => sub { if ($_[1]) {
-                                        addToArray("-std=c++0x", \@cxxflags);
+                                        addToArray("-std=c++0x", \@cflags);
                                     } else {
-                                        removeFromArray("-std=c++0x", \@cxxflags);
+                                        removeFromArray("-std=c++0x", \@cflags);
                                     } },
-           'gcc'           => sub { @cc    = ("gcc");
-                                    @cxx   = ("g++");
-                                    $dcc   =  "gcc";
-                                    $dcxx  =  "g++"; },
-           'nogcc|no-gcc'        => sub { @cc    = ();
-                                    @cxx   = ();
-                                    $dcc   = "";
-                                    $dcxx  = ""; },
            'ignore|i'      => \$ignore,
            'run|r+'        => \$run,
            'asm|asm32!'    => sub { if ($_[1]) {
@@ -152,11 +148,7 @@ unless ($src) {
 }
 $binDir  ||= ".";
 $objsDir ||= "objs";
-@cc        = ("clang",   "gcc") unless @cc;
-@cxx       = ("clang++", "g++") unless @cxx;
-$dcc     ||= "gcc";
-$dcxx    ||= "g++";
-@dcflags   = qw(-DDEBUG -g -Wall -Wextra -Weffc++) unless @dcflags;
+@dcflags   = qw(-DDEBUG -g3 -Wall -Wextra) unless @dcflags;
 $name    ||= "a.out";
 $quiet   //= 1;
 $stdout  //= 0;
@@ -202,7 +194,6 @@ for my $qt (@QTFiles) {
 my $objs =  join(' ', @objs);
 
 my $cflags   = join(' ', @cflags);
-my $cxxflags = join(' ', @cxxflags);
 my $lflags   = "";
 for my $flag (@lflags) {
     $lflags .= "$flag ";
@@ -224,33 +215,19 @@ $objsDir  =~ s|/$||;
 
 
 
-# choose the first existing compiler from the list
-my $cc;
-my $cxx;
 my $linker;
 
-{
-    $cc = selectCompiler(\@cc);
-    if (@CFiles) {
-        die "There are no valid C compilers in the list\n"   unless cmdExist($cc);
-    }
-
-    $cxx = selectCompiler(\@cxx);
-    if (@CPPFiles) {
-        die "There are no valid C++ compilers in the list\n" unless cmdExist($cxx);
-        $linker = "\$(CXX)";
-    } else {
-        $linker = "\$(CC)";
-    }
+if (@CPPFiles) {
+    $linker = "\$(CXX)";
+} else {
+    $linker = "\$(CC)";
 }
 
 
 # write the macros
-my $make = "CC=$cc\n";
-$make .= "CXX=$cxx\n" if @CPPFiles;
-$make .= "CFLAGS=\$(O) $cflags\n";
-$make .= "CXXFLAGS=\$(CFLAGS) $cxxflags\n" if @CPPFiles;
-$make .= "O=-O$O
+my $make;
+$make .= "CFLAGS=-O\$(O) $cflags\n";
+$make .= "O=$O
 LFLAGS=$lflags
 OBJS=$objs\n";
 
@@ -304,12 +281,12 @@ for my $CPPFile (@CPPFiles) {
     if ($echo) {
         $make .= "
 $objsDir/$deps
-	\$(CXX) \$(CXXFLAGS) -c \"$CPPFile\" -o \$@";
+	\$(CXX) \$(CFLAGS) -c \"$CPPFile\" -o \$@";
     } else {
         $make .= "
 $objsDir/$deps
 	@ echo \"    CXX  $CPPFile\"
-	@ \$(CXX) \$(CXXFLAGS) -c \"$CPPFile\" -o \$@";
+	@ \$(CXX) \$(CFLAGS) -c \"$CPPFile\" -o \$@";
     }
 }
 
@@ -323,7 +300,7 @@ $src/moc:
 $src/moc/moc_\%_qt.cpp: $src/\%_qt.hpp | $src/moc
 	moc \"$src/\$*_qt.hpp\" -o \$@
 objs/moc_\%_qt.o: $src/moc/moc_\%_qt.cpp
-	\$(CXX) \$(CXXFLAGS) -c \"$src/moc/moc_\$*_qt.cpp\" -o \$@";
+	\$(CXX) \$(CFLAGS) -c \"$src/moc/moc_\$*_qt.cpp\" -o \$@";
     } else {
         $make .= "
 $src/moc/moc_\%_qt.cpp: $src/\%_qt.hpp | $src/moc
@@ -331,7 +308,7 @@ $src/moc/moc_\%_qt.cpp: $src/\%_qt.hpp | $src/moc
 	@ moc \"$src/\$*_qt.hpp\" -o \$@
 objs/moc_\%_qt.o: $src/moc/moc_\%_qt.cpp
 	@ echo \"    CXX  $src/moc/moc_\$*_qt.cpp\"
-	@ \$(CXX) \$(CXXFLAGS) -c \"$src/moc/moc_\$*_qt.cpp\" -o \$@";
+	@ \$(CXX) \$(CFLAGS) -c \"$src/moc/moc_\$*_qt.cpp\" -o \$@";
     }
 }
 
@@ -377,9 +354,7 @@ unless ($legacy) {
     $make .= ".PHONY: d debug
 d: debug
 debug: CFLAGS += @dcflags
-debug: O=-O0
-debug: CC=$dcc\n";
-    $make .= "debug: CXX=$dcxx\n" if @CPPFiles;
+debug: O=0\n";
     $make .= "debug: ASM += -g\n" if $asm;
     $make .= "debug: all\n\n";
 }
@@ -387,7 +362,7 @@ debug: CC=$dcc\n";
 # Emacs flymake-mode
 $make .= ".PHONY: check-syntax
 check-syntax:
-	g++ \$(CXXFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)\n";
+	$linker \$(CFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)\n";
 
 if ( -f "vfnmake.end" ) {
     open($file, '<', "vfnmake.end");
@@ -405,10 +380,11 @@ if ($stdout) {
         my $md5_old = <$file>;
         chomp $md5_old;
         $md5_old =~ s/^# //;
-        my $tmp = $/;
-        local $/;
-        my $md5_new = md5_hex(<$file>);
-        $/ = $tmp;
+        my $md5_new;
+        {
+            local $/;
+            $md5_new = md5_hex(<$file>);
+        }
         if ($md5_old ne $md5_new) {
             print "The existing Makefile was modified or was not created by vfnmake.\nDo you want to overwrite it? [y/n] ";
             my $overwrite = <STDIN>;
@@ -427,36 +403,14 @@ if ($stdout) {
 
 # config save
 my $config;
-my @config = (
-              [ cc              => \@cc       ],
-              [ cxx             => \@cxx      ],
-              [ debug_cc        => $dcc       ],
-              [ debug_cxx       => $dcxx      ],
-              [ debug_cflags    => \@dcflags  ],
-              [ libs            => \@libs     ],
-              [ pkgs            => \@pkgs     ],
-              [ O               => $O         ],
-              [ cflags          => \@cflags   ],
-              [ cxxflags        => \@cxxflags ],
-              [ lflags          => \@lflags   ],
-              [ name            => $name      ],
-              [ src_directory   => $src       ],
-              [ bin_directory   => $binDir    ],
-              [ objs_directory  => $objsDir   ],
-              [ echo            => $echo      ],
-              [ asm             => $asm       ],
-              [ qt              => $qt        ],
-              [ legacy          => $legacy    ],
-             );
-
-for my $p (@config) {
+for my $p (sort keys %configTranslation) {
     my $str;
-    if (ref $p->[1] eq 'ARRAY') {
-        $str = join(' ', @{$p->[1]});
+    if (ref $configTranslation{$p} eq 'ARRAY') {
+        $str = join(' ', @{$configTranslation{$p}});
     } else {
-        $str = $p->[1];
+        $str = ${$configTranslation{$p}};
     }
-    $config .= sprintf("%-20s%s\n", $p->[0] . ':', $str);
+    $config .= sprintf("%-20s%s\n", $p . ':', $str);
 }
 
 open($file, '>', $configName) or die;
@@ -485,70 +439,23 @@ sub removeFromArray {
     my ($value, $array) = @_;
     @$array = grep {$_ ne $value} @$array;
 }
-sub cmdExist {
-    return !system("command -v \"$_[0]\" > /dev/null 2> /dev/null");
-}
-sub selectCompiler {
-    my @list = @{$_[0]};
-    my $compiler = "";
-    do {
-        $compiler = shift @list;
-    } while (@list != 0 &&
-             !cmdExist($compiler));
-    $compiler = "" unless cmdExist($compiler);
-    return $compiler;
-}
 sub loadConfig {
     if ( -r $_[0] ) {
         open(my $file, '<', $_[0]);
         while (my $line = <$file>) {
-            my $line2;
-            if ($convert) {
-                $line2 = <$file>;
-                $line2 =~ s/^\s*//;
-            } else {
-                $line2 =  $line;
-                $line  =~ s/^\s*([^:]*:).*$/$1/;
-                $line2 =~ s/^\s*[^:]*:\s*(.*)$/$1/;
-            }
-            if ($line eq "libs:\n") {
-                @libs = split /\s+/, $line2;
-            } elsif ($line eq "pkgs:\n") {
-                @pkgs = split /\s+/, $line2;
-            } elsif ($line eq "cflags:\n") {
-                @cflags   = split /\s+/, $line2;
-            } elsif ($line eq "cxxflags:\n") {
-                @cxxflags = split /\s+/, $line2;
-            } elsif ($line eq "lflags:\n") {
-                @lflags = split /\s+/, $line2;
-            } elsif ($line eq "O:\n") {
-                chomp ($O = $line2);
-            } elsif ($line eq "src_directory:\n") {
-                chomp ($src = $line2);
-            } elsif ($line eq "bin_directory:\n") {
-                chomp ($binDir = $line2);
-            } elsif ($line eq "objs_directory:\n") {
-                chomp ($objsDir = $line2);
-            } elsif ($line eq "cc:\n") {
-                @cc  = split /\s+/, $line2;
-            } elsif ($line eq "cxx:\n") {
-                @cxx = split /\s+/, $line2;
-            } elsif ($line eq "debug_cc:\n") {
-                chomp ($dcc = $line2);
-            } elsif ($line eq "debug_cxx:\n") {
-                chomp ($dcxx = $line2);
-            } elsif ($line eq "debug_cflags:\n") {
-                @dcflags = split /\s+/, $line2;
-            } elsif ($line eq "echo:\n") {
-                chomp ($echo = $line2);
-            } elsif ($line eq "name:\n") {
-                chomp ($name = $line2);
-            } elsif ($line eq "asm:\n") {
-                chomp ($asm = $line2);
-            } elsif ($line eq "qt:\n") {
-                chomp ($qt = $line2);
-            } elsif ($line eq "legacy:\n") {
-                chomp ($legacy = $line2);
+            chomp $line;
+            my $option = $line;
+            my $args   = $line;
+            $option  =~ s/^\s*([^:]*):.*$/$1/;
+            $args    =~ s/^\s*[^:]*:\s*(.*)$/$1/;
+            if (exists $configTranslation{$option}) {
+                if (ref $configTranslation{$option} eq 'ARRAY') {
+                    @{$configTranslation{$option}} = split /\s+/, $args;
+                } else {
+                    ${$configTranslation{$option}} = $args;
+                }
+            } elsif ($line) {   # ignore empty lines
+                die "Unknown option in the config file \"$_[0]\": \"$option\"\n";
             }
         }
         close($file);

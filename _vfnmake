@@ -11,8 +11,6 @@ local context state line
 typeset -A opt_args
 
 _arguments -s -S \
-    "(--no-gcc)--gcc[use only gcc]" \
-    "(--gcc)--no-gcc[use the default compilers]" \
     "(--no-asm --asm64)--asm[enable x86 Assembly support]" \
     "(--no-asm --asm32)--asm64[enable x86_64 Assembly support]" \
     "(--asm32 --asm64)--no-asm[disable Assembly support]" \
@@ -29,34 +27,17 @@ _arguments -s -S \
     \
     "-O+[set the optimization level]:optimization level:(0 1 2 3 s)" \
     \
-    "--cc=[set the C compiler list]:comma separated list of C compilers" \
-    "--cxx=[set the C++ compiler list]:comma separated list of C++ compilers" \
-    "(--legacy)--dcc=[set the C debug compiler]:C compiler" \
-    "(--legacy)--dcxx=[set the C++ debug compiler]:C++ compiler" \
-    \
     "*-c+[add a cflag]:cflag:" \
     "*--cflag=[add a cflag]:cflag:" \
     "*-C+[remove a cflag]:cflag:" \
     "*--Cflag=[remove a cflag]:cflag:" \
     "*--cflags=[set the cflags list]:comma separated list of cflags:" \
     \
-    "*-x+[add a cxxflag]:cxxflag:" \
-    "*--cxxflag=[add a cxxflag]:cxxflag:" \
-    "*-X+[remove a cxxflag]:cxxflag:" \
-    "*--Cxxflag=[remove a cxxflag]:cxxflag:" \
-    "*--cxxflags=[set the cxxflags list]:comma separated list of cxxflags:" \
-    \
     "*-l+[add a library]:library:" \
     "*--lib=[add a library]:library:" \
     "*-L+[remove a library]:library:" \
     "*--Lib=[remove a library]:library:" \
     "*--libs=[set the libraries list]:comma separated list of libraries:" \
-    \
-    "*-x+[add a cxxflag]:cxxflag:" \
-    "*--cxxflag=[add a cxxflag]:cxxflag:" \
-    "*-X+[remove a cxxflag]:cxxflag:" \
-    "*--Cxxflag=[remove a cxxflag]:cxxflag:" \
-    "*--cxxflags=[set the cxxflags list]:comma separated list of cxxflags:" \
     \
     "*-p+[add a package]:package:" \
     "*--pkg=[add a package]:package:" \
@@ -84,11 +65,10 @@ _arguments -s -S \
     "(--dir)-d+[select the working directory]:working directory:_files" \
     "(-i)--ignore[run even when there are no supported files detected]" \
     "(--ignore)-i[run even when there are no supported files detected]" \
-    "(--dcc --dcxx --no-legacy)--legacy[disable the debugging options]" \
+    "(--no-legacy)--legacy[disable the debugging options]" \
     "(--legacy)--no-legacy[disable the debugging options]" \
     \
     "--configure[copy vfnmake to the working directory]" \
-    "--convert[convert the old config file to the new format]" \
     \
     "(-)--version[print the version number]" \
     "(-)--help[display the help]" \

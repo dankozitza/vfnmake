@@ -48,22 +48,6 @@ Specify the directory for the *.o files. Default: objs/
 
 Specify the directory for the executable file. Default: ./
 
-=item B<--cc> I<comma_separated_list_of_compilers>
-
-Comma separated list of used C compilers. The first one available is used. Default: clang, gcc
-
-=item B<--cxx> I<comma_separated_list_of_compilers>
-
-Comma separated list of used C++ compilers. The first one available is used. Default: clang++, g++
-
-=item B<--dcc> I<compiler>
-
-A C compiler for 'make debug'. Default: gcc
-
-=item B<--dcxx> I<compiler>
-
-A C++ compiler for 'make debug'. Default: g++
-
 =item B<-c> I<flag>, B<--cflag> I<flag>         (add)
 
 =item B<-C> I<flag>, B<--Cflag> I<flag>         (remove)
@@ -73,16 +57,6 @@ Add/remove a compilation flag.
 =item B<--cflags> I<comma_separated_list_of_flags>
 
 Overwrite the previous cflags.
-
-=item B<-x> I<flag>, B<--cxxflag> I<flag>       (add)
-
-=item B<-X> I<flag>, B<--Cxxflag> I<flag>       (remove)
-
-Add/remove a C++ compilation flag. These are used only in C++ IN ADDITION to the regular cflags.
-
-=item B<--cxxflags> I<comma_separated_list_of_flags>
-
-Overwrite the previous cxxflags.
 
 =item B<-O> I<n>
 
@@ -124,14 +98,6 @@ Overwrite the previous lflags.
 
 Print the executed commands or not. Default: --no-echo
 
-=item B<--gcc>
-
-Use only gcc/g++.
-
-=item B<--no-gcc>
-
-Use the default compiler list..
-
 =item B<--cpp11>
 
 =item S<   B<--cpp1>>
@@ -167,12 +133,6 @@ alias to --asm32
 =item S<   B<--qt>>
 
 Enable Qt4 meta-object support for files named *_qt.hpp and add some useful flags. Default: --no-qt
-
-=item B<-q>, B<--quiet>
-
-Do not print the config variables.
-
-NOTE: Since 1.0.6 it is the default behavior so it effectively doesn't do anything.
 
 =item B<-v>, B<--verbose>
 
@@ -234,7 +194,7 @@ default options
 
 =item I<debug (d)>
 
-compile with -g flag, O0 optimization and DEBUG macro
+compile with -g3 flag, O0 optimization and DEBUG macro
 
 =item I<clean (c)>
 
@@ -256,16 +216,11 @@ The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vf
 
 =head2 vfnmake.conf syntax
 
-    cc:                 compiler1 compiler2 ...
-    cxx:                compiler1 compiler2 ...
-    debug_cc:           compiler
-    debug_cxx:          compiler
-    debug_cflags:       flag1 flag2 ...
     libs:               lib1 lib2 ...
     pkgs:               pkg1 pkg2 ...
     O:                  0|1|2|3|s
     cflags:             flag1 flag2 ...
-    cxxflags:           flag1 flag2 ...
+    debug_cflags:       flag1 flag2 ...
     lflags:             flag1 flag2 ...
     name:               name
     src_directory:      dir
@@ -305,9 +260,35 @@ If you need to link the ncurses library and want to use the -Wall flag, use this
 
 S<        B<vfnmake --lib=ncurses --cflag=-Wall>>
 
+=head1 2.0.0 CHANGES
+
+B<IMPORTANT:>
+
+B<THE CONFIG FILES FROM 1.2.0 ARE *NOT* COMPATIBLE>
+
+=head2 Removed features
+
+=over 4
+
+=item * the compiler is not selected by vfnmake; use "export CC=your_C_compiler" and "export CXX=your_C++_compiler" before running make
+
+=item * CXXFLAGS; CFLAGS are used for both C and C++
+
+=back
+
+=head2 Added features
+
+=over 4
+
+=item * THE GLORIOUS RETURN OF SIMPLICITY!!!
+
+=back
+
+If you do need any of the removed features, email me, I'll what I can do.
+
 =head1 AUTHOR
 
-vfnmake was written by Wojciech 'Vifon' Siewierski <darkvifon at gmail dot com>.
+vfnmake was written by Wojciech 'vifon' Siewierski <darkvifon at gmail dot com>.
 
 =head1 ACKNOWLEDGEMENTS
 

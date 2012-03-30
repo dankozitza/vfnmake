@@ -16,15 +16,10 @@ vfnmake.1.gz: README.pod
 etc: vfnmake.conf
 
 vfnmake.conf:
-	@ echo -e "cc:\n\
-cxx:\n\
-debug_cc:\n\
-debug_cxx:\n\
-libs:\n\
+	@ echo -e "libs:\n\
 pkgs:\n\
 O:\n\
 cflags:\n\
-cxxflags:\n\
 lflags:\n\
 name:\n\
 src_directory:\n\
