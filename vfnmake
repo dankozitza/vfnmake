@@ -43,7 +43,6 @@ my $ignore;
 my $asm;
 my $configName = "vfnmake.conf";
 my $qt;
-my $convert;
 my $run;
 my $legacy;
 
@@ -69,7 +68,6 @@ my %configTranslation = (
 GetOptions(
            'file|f=s'  => \$configName,
            'chdir|d=s' => sub { chdir $_[1] },
-           'convert'   => \$convert,
           );
 
 Getopt::Long::Configure("no_pass_through");

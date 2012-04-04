@@ -6,7 +6,7 @@ vfnmake - a relatively simple Makefile generator
 
 =head1 SYNOPSIS
 
-B<vfnmake> [ B<-f> I<file> ] [ B<-d> I<dir> ] [ B<--convert> ] [ options ]
+B<vfnmake> [ B<-f> I<file> ] [ B<-d> I<dir> ] [ options ]
 
 B<vfnmake> B<--version>
 
@@ -177,10 +177,6 @@ Enable/disable compatibility mode with the older versions of GNU Make. It effect
 =item B<--configure>
 
 Generates the configure.pl script. To be specific, it just copies itself to the current directory.
-
-=item B<--convert>
-
-Convert the config file from the old format to the new one.
 
 =back
 
