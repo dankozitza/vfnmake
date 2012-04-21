@@ -280,7 +280,7 @@ B<THE CONFIG FILES FROM 1.2.0 ARE *NOT* COMPATIBLE>
 
 =back
 
-If you do need any of the removed features, email me, I'll what I can do.
+If you do need any of the removed features, email me, I'll see what I can do.
 
 =head1 AUTHOR
 
