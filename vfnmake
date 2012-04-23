@@ -21,7 +21,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "2.0.0";
+$main::VERSION = "2.1.0";
 
 # variables
 my $src;
@@ -224,6 +224,10 @@ if (@CPPFiles) {
 
 # write the macros
 my $make;
+if ($legacy) {
+    $make .= "CC=gcc
+CXX=g++\n"
+}
 $make .= "CFLAGS=-O\$(O) $cflags\n";
 $make .= "O=$O
 LFLAGS=$lflags

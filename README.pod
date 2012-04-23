@@ -172,7 +172,7 @@ Generate the Makefile even if there are no C/C++ files (used mainly with vfnmake
 
 =item S<   B<--legacy>>
 
-Enable/disable compatibility mode with the older versions of GNU Make. It effectively disables debugging options.
+Enable/disable compatibility mode with the older versions of GNU Make and older software in general. It effectively disables debugging options and explicitly uses gcc/g++.
 
 =item B<--configure>
 
