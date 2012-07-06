@@ -21,7 +21,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "2.1.0";
+$main::VERSION = "2.1.1";
 
 # variables
 my $src;
@@ -105,9 +105,9 @@ GetOptions(
            'verbose|v'     => sub { $quiet = !$_[1] },
            'stdout'        => \$stdout,
            'cpp0x|cpp11!'  => sub { if ($_[1]) {
-                                        addToArray("-std=c++0x", \@cflags);
+                                        addToArray("-std=c++11", \@cflags);
                                     } else {
-                                        removeFromArray("-std=c++0x", \@cflags);
+                                        removeFromArray("-std=c++11", \@cflags);
                                     } },
            'ignore|i'      => \$ignore,
            'run|r+'        => \$run,
@@ -164,6 +164,9 @@ if ($qt == 1) {
     removeFromArray($_, \@libs) for ("pthread");
     $qt = 0;
 }
+
+my $CPPDependencyDetectCommand = "g++";
+$CPPDependencyDetectCommand = "g++ -std=c++11" if grep { $_ eq "-std=c++11" } @cflags;
 
 
 
@@ -278,7 +281,7 @@ $objsDir/$deps
     }
 }
 for my $CPPFile (@CPPFiles) {
-    my $deps = `g++ -MM "$CPPFile"`;
+    my $deps = `$CPPDependencyDetectCommand -MM "$CPPFile"`;
     chomp $deps;
     if ($echo) {
         $make .= "
