@@ -98,9 +98,9 @@ Overwrite the previous lflags.
 
 Print the executed commands or not. Default: --no-echo
 
-=item B<--cpp11>
+=item B<--no-cpp11>
 
-=item S<   B<--cpp1>>
+=item S<   B<--cpp11>>
 
 Use C++11 standard.
 
