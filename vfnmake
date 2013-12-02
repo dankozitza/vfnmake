@@ -100,17 +100,21 @@ GetOptions(
            'Lib|L=s'       => sub { removeFromArray($_[1], \@libs)      },
 
            'O=s'           => \$O,
+
            'echo|e!'       => \$echo,
            'quiet|q'       => \$quiet,
            'verbose|v'     => sub { $quiet = !$_[1] },
            'stdout'        => \$stdout,
+
            'cpp0x|cpp11!'  => sub { if ($_[1]) {
                                         addToArray("-std=c++11", \@cflags);
                                     } else {
                                         removeFromArray("-std=c++11", \@cflags);
                                     } },
+
            'ignore|i'      => \$ignore,
            'run|r+'        => \$run,
+
            'asm|asm32!'    => sub { if ($_[1]) {
                                         $asm = 32
                                     } else {
@@ -126,9 +130,12 @@ GetOptions(
                                     } else {
                                         $qt = 2 # reset
                                     } },
+
            'legacy!'       => \$legacy,
+
            'configure'     => sub { copy($FindBin::RealBin . '/' . $FindBin::RealScript, "./configure.pl") or die "Copy failed\n";
                                     chmod(0755, "./configure.pl") or "Chmod failed\n"; },
+
            'help|h'        => sub { pod2usage({ -input => $doc, -verbose => 1 }) or die if $FindBin::RealScript eq "vfnmake";
                                     exit },
            'man'           => sub { pod2usage({ -input => $doc, -verbose => 2 }) or die if $FindBin::RealScript eq "vfnmake";
@@ -391,7 +398,7 @@ if ($stdout) {
             $md5_new = md5_hex(<$file>);
         }
         if ($md5_old ne $md5_new) {
-            print "The existing Makefile was modified or was not created by vfnmake.\nDo you want to overwrite it? [y/n] ";
+            print "The existing Makefile was modified or was not created by vfnmake.\nDo you want to overwrite it? [y/N] ";
             my $overwrite = <STDIN>;
             chomp $overwrite;
             exit 0 if $overwrite ne "y";
