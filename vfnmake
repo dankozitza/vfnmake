@@ -172,8 +172,8 @@ if ($qt == 1) {
     $qt = 0;
 }
 
-my $CPPDependencyDetectCommand = "g++";
-$CPPDependencyDetectCommand = "g++ -std=c++11" if grep { $_ eq "-std=c++11" } @cflags;
+my $CPPDependencyDetectCommand = "g++ -MM";
+$CPPDependencyDetectCommand .= " -std=c++11" if grep { $_ eq "-std=c++11" } @cflags;
 
 
 
@@ -202,12 +202,10 @@ for my $qt (@QTFiles) {
 my $objs =  join(' ', @objs);
 
 my $cflags   = join(' ', @cflags);
-my $lflags   = "";
-for my $flag (@lflags) {
-    $lflags .= "$flag ";
-}
+
+my $lflags   = join(' ', @lflags);
 for my $lib (@libs) {
-    $lflags .= "-l $lib ";
+    $lflags .= " -l $lib";
 }
 my $pkgs;
 if (@pkgs) {
@@ -288,7 +286,7 @@ $objsDir/$deps
     }
 }
 for my $CPPFile (@CPPFiles) {
-    my $deps = `$CPPDependencyDetectCommand -MM "$CPPFile"`;
+    my $deps = `$CPPDependencyDetectCommand "$CPPFile"`;
     chomp $deps;
     if ($echo) {
         $make .= "
