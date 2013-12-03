@@ -134,7 +134,7 @@ GetOptions(
            'legacy!'       => \$legacy,
 
            'configure'     => sub { copy($FindBin::RealBin . '/' . $FindBin::RealScript, "./configure.pl") or die "Copy failed\n";
-                                    chmod(0755, "./configure.pl") or "Chmod failed\n"; },
+                                    chmod(0755, "./configure.pl") or die "Chmod failed\n"; },
 
            'help|h'        => sub { pod2usage({ -input => $doc, -verbose => 1 }) or die if $FindBin::RealScript eq "vfnmake";
                                     exit },
