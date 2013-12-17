@@ -264,8 +264,11 @@ $binDir/$name: \$(OBJS)
 
 
 # creating the targets
+my $CDependencyDetectCommand = "gcc -MM";
+$CDependencyDetectCommand .= " -std=$std" if $std;
+
 for my $CFile (@CFiles) {
-    my $deps = `gcc -MM "$CFile"`;    # some compilers have problems sometimes, so I've hardcoded gcc here
+    my $deps = `$CDependencyDetectCommand "$CFile"`;
     chomp $deps;
     if ($echo) {
         $make .= "
