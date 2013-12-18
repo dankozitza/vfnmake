@@ -212,6 +212,7 @@ The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vf
 
 =head2 vfnmake.conf syntax
 
+    #version:           version
     libs:               lib1 lib2 ...
     pkgs:               pkg1 pkg2 ...
     O:                  0|1|2|3|s
