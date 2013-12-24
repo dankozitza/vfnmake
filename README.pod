@@ -98,17 +98,31 @@ Overwrite the previous lflags.
 
 Print the executed commands or not. Default: --no-echo
 
-=item B<--no-cpp11>
+=item B<--no-std>
 
-=item S<   B<--cpp11>>
+=item B<  --std> I<standard>
 
-Use C++11 standard.
+Set language standard (-std compiler flag, see your compiler's manpage for list of available options).
 
-=item B<--no-cpp0x>
+=item S<   B<--c99>>
+
+Use C99 standard (alias to --std=c99).
+
+=item S<   B<--c11>>
+
+Use C11 standard (alias to --std=c11).
 
 =item S<   B<--cpp0x>>
 
-alias to --cpp11
+(deprecated) Use C++11 standard (alias to --std=c++11).
+
+=item S<   B<--cpp11>>
+
+Use C++11 standard (alias to --std=c++11).
+
+=item S<   B<--cpp1y>>
+
+Use C++1y standard (alias to --std=c++1y).
 
 =item B<--no-asm32>
 
@@ -216,6 +230,7 @@ The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vf
     libs:               lib1 lib2 ...
     pkgs:               pkg1 pkg2 ...
     O:                  0|1|2|3|s
+    std:                c99|c++11|...
     cflags:             flag1 flag2 ...
     debug_cflags:       flag1 flag2 ...
     lflags:             flag1 flag2 ...

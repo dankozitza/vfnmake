@@ -22,7 +22,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "2.1.1";
+$main::VERSION = "2.2.0";
 
 # variables
 my $src;
@@ -30,6 +30,7 @@ my $binDir;
 my $objsDir;
 my $cc;
 my $cxx;
+my $std;
 my @dcflags;
 my @cflags;
 my @lflags;
@@ -59,6 +60,7 @@ my %configTranslation = (
                          libs           => \@libs      ,
                          pkgs           => \@pkgs      ,
                          O              => \$O         ,
+                         std            => \$std       ,
                          cflags         => \@cflags    ,
                          debug_cflags   => \@dcflags   ,
                          lflags         => \@lflags    ,
@@ -103,6 +105,8 @@ GetOptions(
            'lib|l=s'       => sub {      addToArray($_[1], \@libs)      },
            'Lib|L=s'       => sub { removeFromArray($_[1], \@libs)      },
 
+           'std=s'         => \$std,
+           'no-std|nostd'  => sub { $std = "" },
            'O=s'           => \$O,
 
            'echo|e!'       => \$echo,
@@ -110,11 +114,10 @@ GetOptions(
            'verbose|v'     => sub { $quiet = !$_[1] },
            'stdout'        => \$stdout,
 
-           'cpp0x|cpp11!'  => sub { if ($_[1]) {
-                                        addToArray("-std=c++11", \@cflags);
-                                    } else {
-                                        removeFromArray("-std=c++11", \@cflags);
-                                    } },
+           'c99'           => sub { $std = "c99"  ; },
+           'c11'           => sub { $std = "c11"  ; },
+           'cpp0x|cpp11'   => sub { $std = "c++11"; },
+           'cpp1y'         => sub { $std = "c++1y"; },
 
            'ignore|i'      => \$ignore,
            'run|r+'        => \$run,
@@ -176,9 +179,6 @@ if ($qt == 1) {
     $qt = 0;
 }
 
-my $CPPDependencyDetectCommand = "g++ -MM";
-$CPPDependencyDetectCommand .= " -std=c++11" if grep { $_ eq "-std=c++11" } @cflags;
-
 
 
 my @CFiles;
@@ -206,6 +206,7 @@ for my $qt (@QTFiles) {
 my $objs =  join(' ', @objs);
 
 my $cflags   = join(' ', @cflags);
+$cflags .= " -std=$std" if $std;
 
 my $lflags   = join(' ', @lflags);
 for my $lib (@libs) {
@@ -289,6 +290,10 @@ $objsDir/$deps
 	@ \$(CC) \$(CFLAGS) -c \"$CFile\" -o \$@";
     }
 }
+
+my $CPPDependencyDetectCommand = "g++ -MM";
+$CPPDependencyDetectCommand .= " -std=$std" if $std;
+
 for my $CPPFile (@CPPFiles) {
     my $deps = `$CPPDependencyDetectCommand "$CPPFile"`;
     chomp $deps;
@@ -479,7 +484,12 @@ sub loadConfig {
 }
 
 sub handleLegacyConfig {
-    if ( compareVersions($configVer, $main::VERSION) == 1 ) {
+    if ( compareVersions($configVer, '2.2.0') == -1 ) {
+        @cflags = grep {
+            ($_ ne '-std=c++11') or
+                $std = 'c++11' and 0; # Short-circuit logic magic if
+        } @cflags;
+    } elsif ( compareVersions($configVer, $main::VERSION) == 1 ) {
         warn "Config file version ($configVer) newer than vfnmake $main::VERSION";
     }
 
