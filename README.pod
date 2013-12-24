@@ -178,7 +178,7 @@ Run make automatically. It can do various other things depending on the times it
 
 You can specify the arguments for make after "--" to override this behavior.
 
-=item B<-i>, B<--ignore>
+=item B<-g>, B<--force-generate>
 
 Generate the Makefile even if there are no C/C++ files (used mainly with vfnmake.begin/end).
 

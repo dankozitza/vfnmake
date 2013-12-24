@@ -41,7 +41,7 @@ my $O;
 my $echo;
 my $quiet;
 my $stdout;
-my $ignore;
+my $force_generate;
 my $asm;
 my $configName = "vfnmake.conf";
 my $qt;
@@ -119,7 +119,8 @@ GetOptions(
            'cpp0x|cpp11'   => sub { $std = "c++11"; },
            'cpp1y'         => sub { $std = "c++1y"; },
 
-           'ignore|i'      => \$ignore,
+           'force-generate|g'
+                           => \$force_generate,
            'run|r+'        => \$run,
 
            'asm|asm32!'    => sub { $asm = $_[1] ? 32 : 0; },
@@ -146,18 +147,18 @@ unless ($src) {
         $src = ".";
     }
 }
-$binDir  ||= ".";
-$objsDir ||= "objs";
-@dcflags   = qw(-DDEBUG -g3 -Wall -Wextra) unless @dcflags;
-$name    ||= "a.out";
-$quiet   //= 1;
-$stdout  //= 0;
-$ignore  //= 0;
-$O         = 2 if $O       eq "";
-$echo      = 0 if $echo    eq "";
-$legacy    = 0 if $legacy  eq "";
-$asm       = 0 if $asm     eq "";
-$qt        = 0 if $qt      eq "";
+$binDir         ||= ".";
+$objsDir        ||= "objs";
+@dcflags          = qw(-DDEBUG -g3 -Wall -Wextra) unless @dcflags;
+$name           ||= "a.out";
+$quiet          //= 1;
+$stdout         //= 0;
+$force_generate //= 0;
+$O                = 2 if $O       eq "";
+$echo             = 0 if $echo    eq "";
+$legacy           = 0 if $legacy  eq "";
+$asm              = 0 if $asm     eq "";
+$qt               = 0 if $qt      eq "";
 if ($qt == 1) {
     addToArray($_, \@pkgs) for ("QtCore", "QtGui");
     addToArray($_, \@libs) for ("pthread");
@@ -178,10 +179,10 @@ find( sub { push @QTFiles , "$File::Find::name" if /_qt\.hpp$/         and !/^\.
 my @ASMFiles;
 find( sub { push @ASMFiles, "$File::Find::name" if /\.(?:asm|s|S)$/    and !/^\.?#/ }, $src) if $asm;
 
-die "No supported files detected\n" if ( !$ignore    and
-                                         !@CFiles    and
-                                         !@QTFiles   and
-                                         !@CPPFiles  and
+die "No supported files detected\n" if ( !$force_generate and
+                                         !@CFiles         and
+                                         !@QTFiles        and
+                                         !@CPPFiles       and
                                          !($asm and @ASMFiles) );
 
 my @objs =  (@CFiles, @CPPFiles, @ASMFiles);
