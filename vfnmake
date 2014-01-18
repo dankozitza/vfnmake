@@ -429,18 +429,22 @@ print $file "$config";
 close($file);
 print "$config" unless $quiet or $stdout;
 
+my $cmd;
 if ($run && @ARGV) {
-    system("make " . "@ARGV");
+    $cmd = "make " . "@ARGV";
 } elsif ($run == 1) {
-    system("make");
+    $cmd = "make";
 } elsif ($run == 2) {
-    system("make run");
+    $cmd = "make run";
 } elsif ($run == 3) {
-    system("make fresh");
+    $cmd = "make fresh";
 } elsif ($run == 4) {
-    system("make fresh run");
+    $cmd = "make fresh run";
 }
 
+if($cmd) {
+    exec $cmd;
+}
 
 sub addToArray {
     my ($value, $array) = @_;
