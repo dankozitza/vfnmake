@@ -22,7 +22,7 @@ if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
-$main::VERSION = "2.2.0";
+$main::VERSION = "2.2.1";
 
 # variables
 my $src;
@@ -207,7 +207,6 @@ if (@pkgs) {
     $lflags .= "`pkg-config $pkgs --libs` ";
     $cflags  = "$cflags `pkg-config $pkgs --cflags`";
 }
-chop $lflags;
 
 $src      =~ s|/$||;
 $binDir   =~ s|/$||;
