@@ -204,8 +204,8 @@ for my $lib (@libs) {
 my $pkgs;
 if (@pkgs) {
     $pkgs    = join(' ', @pkgs);
-    $lflags .= "`pkg-config $pkgs --libs` ";
-    $cflags  = "$cflags `pkg-config $pkgs --cflags`";
+    $lflags .= " `pkg-config $pkgs --libs`";
+    $cflags .= " `pkg-config $pkgs --cflags`";
 }
 
 $src      =~ s|/$||;
