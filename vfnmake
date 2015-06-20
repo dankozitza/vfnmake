@@ -150,7 +150,6 @@ unless ($src) {
 $binDir         ||= ".";
 $objsDir        ||= "objs";
 @dcflags          = qw(-DDEBUG -g3 -Wall -Wextra) unless @dcflags;
-$name           ||= "a.out";
 $quiet          //= 1;
 $stdout         //= 0;
 $force_generate //= 0;
@@ -184,6 +183,31 @@ die "No supported files detected\n" if ( !$force_generate and
                                          !@QTFiles        and
                                          !@CPPFiles       and
                                          !($asm and @ASMFiles) );
+
+# TODO: exclude from @CPPFiles file names that are included within @HPPFiles
+# or vice versa
+
+if (!$name) {
+	# automatically set $name to the name of the file containing main
+	# excluding it's extention
+	my $found = 0;
+	foreach my $file ((@CFiles, @CPPFiles)) {
+		open FILE, $file or die "Couldn't open file $file: $!";
+		while (<FILE>) {
+
+			# match the line that has the main function
+			if ($_ =~ /^int main ?\(/) {
+				$found = 1;
+				$name = $file;
+				$name =~ s/^.*\///;
+				$name =~ s/\.\w+$//;
+				last;
+			}
+		}
+		close FILE;
+		last if ($found);
+	}
+}
 
 my @objs =  (@CFiles, @CPPFiles, @ASMFiles);
 s#^.*/(.*)\.[^\.]*$#$objsDir/$1.o# for @objs;
@@ -372,7 +396,7 @@ debug: O=0\n";
 # Emacs flymake-mode
 $make .= ".PHONY: check-syntax
 check-syntax:
-	$linker \$(CFLAGS) -fsyntax-only -Wall -o /dev/null -S \$(CHK_SOURCES)\n";
+	$linker \$(CFLAGS) -fsyntax-only -Wall -o /dev/null -S $src/*\n";
 
 if ( -f "vfnmake.end" ) {
     open($file, '<', "vfnmake.end");
