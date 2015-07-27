@@ -249,6 +249,7 @@ if (@CPPFiles) {
 
 # write the macros
 my $make;
+$make .= "PREFIX=/usr/local\n";
 if ($legacy) {
     $make .= "CC=gcc
 CXX=g++\n"
@@ -366,7 +367,7 @@ $ofile: $ASMFile
 
 $make .= "\n
 objs:
-	@ mkdir \"$objsDir\"
+	@ mkdir \"$objsDir\"\n
 .PHONY: c clean
 c: clean
 clean:
@@ -392,6 +393,21 @@ debug: O=0\n";
     $make .= "debug: ASM += -g\n" if $asm;
     $make .= "debug: all\n\n";
 }
+
+$make .= ".PHONY: sc superclean
+sc: superclean
+superclean: clean
+	@ rm -rf \"deps\"
+	@ echo \"    SUPERCLEAN\"\n\n";
+$make .= ".PHONY: install
+install: all
+	@ install -D -m 755 mc \$(PREFIX)/bin/$name
+	@ echo \"[1;32m*[0m $name installed in \$(PREFIX)/bin\"
+	@ echo \"[1muse \\`make uninstall\\` to remove $name[0m\"\n
+.PHONY: uninstall
+uninstall:
+	@ rm \$(PREFIX)/bin/$name
+	@ echo \"[1;32m*[0m $name removed from \$(PREFIX)/bin[0m\"\n\n";
 
 # Emacs flymake-mode
 $make .= ".PHONY: check-syntax
