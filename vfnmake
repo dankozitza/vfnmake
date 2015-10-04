@@ -419,8 +419,6 @@ install: all
 .PHONY: uninstall
 uninstall:";
 
-print "name is `" . $name . "`\n";
-
 if ($name eq "mc") {
 	$make .= "\n	@ cd deps/vfnmake; make clean; make uninstall;";
 }
