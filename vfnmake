@@ -278,11 +278,23 @@ all: objs $name";
 
 if ($echo) {
     $make .= "\n
-$binDir/$name: \$(OBJS)
+$binDir/$name: ";
+
+    if ($name == "mc") {
+        $make .= "deps/vfnmake/installed ";
+	 }
+
+    $make .= "\$(OBJS)
 	$linker \$(OBJS) -o \"$binDir/$name\" \$(LFLAGS)\n";
 } else {
     $make .= "\n
-$binDir/$name: \$(OBJS)
+$binDir/$name: ";
+
+    if ($name == "mc") {
+        $make .= "deps/vfnmake/installed ";
+	 }
+
+    $make .= " \$(OBJS)
 	@ echo \"    LINK $binDir/$name\"
 	@ $linker \$(OBJS) -o \"$binDir/$name\" \$(LFLAGS)\n";
 }
@@ -401,13 +413,27 @@ superclean: clean
 	@ echo \"    SUPERCLEAN\"\n\n";
 $make .= ".PHONY: install
 install: all
-	@ install -D -m 755 mc \$(PREFIX)/bin/$name
+	@ install -D -m 755 $name \$(PREFIX)/bin/$name
 	@ echo \"[1;32m*[0m $name installed in \$(PREFIX)/bin\"
 	@ echo \"[1muse \\`make uninstall\\` to remove $name[0m\"\n
 .PHONY: uninstall
 uninstall:
 	@ rm \$(PREFIX)/bin/$name
 	@ echo \"[1;32m*[0m $name removed from \$(PREFIX)/bin[0m\"\n\n";
+
+if ($name == "mc") {
+	$make .= "deps:
+	@ mkdir deps
+
+deps/vfnmake: deps
+	@ echo \"    GET deps/vfnmake\"
+	@ cd deps; git clone https://github.com/dankozitza/vfnmake
+
+deps/vfnmake/installed: deps/vfnmake
+	@ echo \"    MAKE INSTALL deps/vfnmake\"
+	@ cd deps/vfnmake; make install
+	@ touch deps/vfnmake/installed\n\n";
+}
 
 # Emacs flymake-mode
 $make .= ".PHONY: check-syntax
