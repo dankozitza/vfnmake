@@ -280,7 +280,7 @@ if ($echo) {
     $make .= "\n
 $binDir/$name: ";
 
-    if ($name == "mc") {
+    if ($name eq "mc") {
         $make .= "deps/vfnmake/installed ";
 	 }
 
@@ -290,7 +290,7 @@ $binDir/$name: ";
     $make .= "\n
 $binDir/$name: ";
 
-    if ($name == "mc") {
+    if ($name eq "mc") {
         $make .= "deps/vfnmake/installed ";
 	 }
 
@@ -417,11 +417,19 @@ install: all
 	@ echo \"[1;32m*[0m $name installed in \$(PREFIX)/bin\"
 	@ echo \"[1muse \\`make uninstall\\` to remove $name[0m\"\n
 .PHONY: uninstall
-uninstall:
+uninstall:";
+
+print "name is `" . $name . "`\n";
+
+if ($name eq "mc") {
+	$make .= "\n	@ cd deps/vfnmake; make clean; make uninstall;";
+}
+
+$make .= "
 	@ rm \$(PREFIX)/bin/$name
 	@ echo \"[1;32m*[0m $name removed from \$(PREFIX)/bin[0m\"\n\n";
 
-if ($name == "mc") {
+if ($name eq "mc") {
 	$make .= "deps:
 	@ mkdir deps
 
