@@ -2,17 +2,17 @@
 
 =head1 NAME
 
-vfnmake - a relatively simple Makefile generator
+vfnmkmc - a relatively simple Makefile generator
 
 =head1 SYNOPSIS
 
-B<vfnmake> [ B<-f> I<file> ] [ B<-d> I<dir> ] [ options ]
+B<vfnmkmc> [ B<-f> I<file> ] [ B<-d> I<dir> ] [ options ]
 
-B<vfnmake> B<--version>
+B<vfnmkmc> B<--version>
 
 =head1 DESCRIPTION
 
-vfnmake works on fire-and-forget basis with as few configuration as possible. It does not try to compete with CMake or Autotools (yet ;) ). I wrote it because writing Makefiles, while not difficult, can be really tedious even for the simple projects. Some features may seem strange but keep in mind that I write it mostly for myself.
+This is a modified version of vfnmake that works together with mc. vfnmkmc works on fire-and-forget basis with as few configuration as possible. It does not try to compete with CMake or Autotools (yet ;) ). I wrote it because writing Makefiles, while not difficult, can be really tedious even for the simple projects. Some features may seem strange but keep in mind that I write it mostly for myself.
 
 To enable linking with Assembly, use B<--asm32>/B<--asm64> options.
 
@@ -154,11 +154,11 @@ Do print the config variables.
 
 =item B<--stdout>
 
-Print the Makefile to the stdout instead of saving in the file so it can be piped directly to make ("vfnmake --stdout | make -f -").
+Print the Makefile to the stdout instead of saving in the file so it can be piped directly to make ("vfnmkmc --stdout | make -f -").
 
 =item B<-f> I<file>, B<--file> I<file>
 
-Use I<file> instead of vfnmake.conf as the config file. Default: vfnmake.conf
+Use I<file> instead of vfnmkmc.conf as the config file. Default: vfnmkmc.conf
 
 =item B<-d> I<dir>, B<--chdir> I<dir>
 
@@ -180,7 +180,7 @@ You can specify the arguments for make after "--" to override this behavior.
 
 =item B<-g>, B<--force-generate>
 
-Generate the Makefile even if there are no C/C++ files (used mainly with vfnmake.begin/end).
+Generate the Makefile even if there are no C/C++ files (used mainly with vfnmkmc.begin/end).
 
 =item B<--no-legacy>
 
@@ -222,9 +222,9 @@ compile and run
 
 =head1 THE CONFIG FILES
 
-The config files are read from F</etc/vfnmake.conf>, F<~/.vfnmake.conf> and F<vfnmake.conf> in that order. The F<vfnmake.conf> in the working directory is automatically modified on each run. Additionaly there are two other files - F<vfnmake.begin> and F<vfnmake.end>. Their role is described below.
+The config files are read from F</etc/vfnmkmc.conf>, F<~/.vfnmkmc.conf> and F<vfnmkmc.conf> in that order. The F<vfnmkmc.conf> in the working directory is automatically modified on each run. Additionaly there are two other files - F<vfnmkmc.begin> and F<vfnmkmc.end>. Their role is described below.
 
-=head2 vfnmake.conf syntax
+=head2 vfnmkmc.conf syntax
 
     #version:           version
     libs:               lib1 lib2 ...
@@ -246,31 +246,31 @@ To use the default value, leave the field empty.
 
 Currently there is no way to set custom "debug_cflags" without modifying the config file manually.
 
-=head2 vfnmake.begin
+=head2 vfnmkmc.begin
 
 Whatever is in this file, will be in the Makefile right after the initialization of the variables. Can be used to override the variables or the default target.
 
-=head2 vfnmake.end
+=head2 vfnmkmc.end
 
-Just like F<vfnmake.begin> but is put at the end of the Makefile. Can be used to add some custom targets without affecting the default one.
+Just like F<vfnmkmc.begin> but is put at the end of the Makefile. Can be used to add some custom targets without affecting the default one.
 
 =head1 EXAMPLES
 
 To generate a Makefile for a program not using any external libraries with no compilation flags just type:
 
-S<        B<vfnmake>>
+S<        B<vfnmkmc>>
 
-You can add B<-r> to turn vfnmake into the automagic make - it will run the generated Makefile afterwards:
+You can add B<-r> to turn vfnmkmc into the automagic make - it will run the generated Makefile afterwards:
 
-S<        B<vfnmake -r>>
+S<        B<vfnmkmc -r>>
 
 You can specify the make target (for example I<debug>) for the B<-r> flag in the following way (note the space after "--"!):
 
-S<        B<vfnmake -r -- debug>>
+S<        B<vfnmkmc -r -- debug>>
 
 If you need to link the ncurses library and want to use the -Wall flag, use this:
 
-S<        B<vfnmake --lib=ncurses --cflag=-Wall>>
+S<        B<vfnmkmc --lib=ncurses --cflag=-Wall>>
 
 =head1 2.0.0 CHANGES
 
@@ -282,7 +282,7 @@ B<THE CONFIG FILES FROM 1.2.0 ARE *NOT* COMPATIBLE>
 
 =over 4
 
-=item * the compiler is not selected by vfnmake; use "export CC=your_C_compiler" and "export CXX=your_C++_compiler" before running make
+=item * the compiler is not selected by vfnmkmc; use "export CC=your_C_compiler" and "export CXX=your_C++_compiler" before running make
 
 =item * CXXFLAGS; CFLAGS are used for both C and C++
 
@@ -301,6 +301,7 @@ If you do need any of the removed features, email me, I'll see what I can do.
 =head1 AUTHOR
 
 vfnmake was written by Wojciech 'vifon' Siewierski <darkvifon at gmail dot com>.
+This is a slightly modified version for use by the c++ managing program mc.
 
 =head1 ACKNOWLEDGEMENTS
 

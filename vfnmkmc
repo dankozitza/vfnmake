@@ -17,8 +17,8 @@ Getopt::Long::Configure(qw(
 use Pod::Usage;
 my $doc;
 my $docmsg = "";
-$docmsg = "\nTry `vfnmake --help'\n" unless $FindBin::RealScript eq "configure.pl";
-if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmake" ) {
+$docmsg = "\nTry `vfnmkmc --help'\n" unless $FindBin::RealScript eq "configure.pl";
+if ( -f "$FindBin::RealBin/README.pod" && $FindBin::RealScript eq "vfnmkmc" ) {
     $doc = "$FindBin::RealBin/README.pod";
 }
 
@@ -43,7 +43,7 @@ my $quiet;
 my $stdout;
 my $force_generate;
 my $asm;
-my $configName = "vfnmake.conf";
+my $configName = "vfnmkmc.conf";
 my $qt;
 my $run;
 my $configVer;
@@ -77,8 +77,8 @@ GetOptions(
 
 Getopt::Long::Configure("no_pass_through");
 
-loadConfig("/etc/vfnmake.conf");
-loadConfig("$ENV{HOME}/.vfnmake.conf");
+loadConfig("/etc/vfnmkmc.conf");
+loadConfig("$ENV{HOME}/.vfnmkmc.conf");
 loadConfig($configName);
 handleLegacyConfig();
 
@@ -132,9 +132,9 @@ GetOptions(
            'configure'     => sub { copy($FindBin::RealBin . '/' . $FindBin::RealScript, "./configure.pl") or die "Copy failed\n";
                                     chmod(0755, "./configure.pl") or die "Chmod failed\n"; },
 
-           'help|h'        => sub { pod2usage({ -input => $doc, -verbose => 1 }) or die if $FindBin::RealScript eq "vfnmake";
+           'help|h'        => sub { pod2usage({ -input => $doc, -verbose => 1 }) or die if $FindBin::RealScript eq "vfnmkmc";
                                     exit },
-           'man'           => sub { pod2usage({ -input => $doc, -verbose => 2 }) or die if $FindBin::RealScript eq "vfnmake";
+           'man'           => sub { pod2usage({ -input => $doc, -verbose => 2 }) or die if $FindBin::RealScript eq "vfnmkmc";
                                     exit },
           ) or die pod2usage({ -input => $doc, -message => $docmsg });
 
@@ -249,6 +249,7 @@ if (@CPPFiles) {
 
 # write the macros
 my $make;
+$make .= "# Generated with vfnmkmc by the mc program.\n";
 $make .= "PREFIX=/usr/local\n";
 if ($legacy) {
     $make .= "CC=gcc
@@ -263,8 +264,8 @@ $make .= "ASM=nasm -f elf" if $asm;
 $make .= "64"              if $asm == 64;
 $make .= "\n";
 
-if ( -f "vfnmake.begin" ) {
-    open($file, '<', "vfnmake.begin");
+if ( -f "vfnmkmc.begin" ) {
+    open($file, '<', "vfnmkmc.begin");
     my $sep = $/;
     undef $/;
     $make .= "\n" . <$file>;
@@ -281,7 +282,7 @@ if ($echo) {
 $binDir/$name: ";
 
     if ($name eq "mc") {
-        $make .= "deps/vfnmake/installed ";
+        $make .= "deps/vfnmkmc/installed ";
 	 }
 
     $make .= "\$(OBJS)
@@ -291,7 +292,7 @@ $binDir/$name: ";
 $binDir/$name: ";
 
     if ($name eq "mc") {
-        $make .= "deps/vfnmake/installed ";
+        $make .= "deps/vfnmkmc/installed ";
 	 }
 
     $make .= " \$(OBJS)
@@ -420,7 +421,7 @@ install: all
 uninstall:";
 
 if ($name eq "mc") {
-	$make .= "\n	@ cd deps/vfnmake; make clean; make uninstall;";
+	$make .= "\n	@ cd deps/vfnmkmc; make clean; make uninstall;";
 }
 
 $make .= "
@@ -431,14 +432,14 @@ if ($name eq "mc") {
 	$make .= "deps:
 	@ mkdir deps
 
-deps/vfnmake: deps
-	@ echo \"    GET deps/vfnmake\"
-	@ cd deps; git clone https://github.com/dankozitza/vfnmake
+deps/vfnmkmc: deps
+	@ echo \"    GET deps/vfnmkmc\"
+	@ cd deps; git clone https://github.com/dankozitza/vfnmkmc
 
-deps/vfnmake/installed: deps/vfnmake
-	@ echo \"    MAKE INSTALL deps/vfnmake\"
-	@ cd deps/vfnmake; make install
-	@ touch deps/vfnmake/installed\n\n";
+deps/vfnmkmc/installed: deps/vfnmkmc
+	@ echo \"    MAKE INSTALL deps/vfnmkmc\"
+	@ cd deps/vfnmkmc; make install
+	@ touch deps/vfnmkmc/installed\n\n";
 }
 
 # Emacs flymake-mode
@@ -446,8 +447,8 @@ $make .= ".PHONY: check-syntax
 check-syntax:
 	$linker \$(CFLAGS) -fsyntax-only -Wall -o /dev/null -S $src/*\n";
 
-if ( -f "vfnmake.end" ) {
-    open($file, '<', "vfnmake.end");
+if ( -f "vfnmkmc.end" ) {
+    open($file, '<', "vfnmkmc.end");
     my $sep = $/;
     undef $/;
     $make .= "\n" . <$file>;
@@ -468,7 +469,7 @@ if ($stdout) {
             $md5_new = md5_hex(<$file>);
         }
         if ($md5_old ne $md5_new) {
-            print "The existing Makefile was modified or was not created by vfnmake.\nDo you want to overwrite it? [y/N] ";
+            print "The existing Makefile was modified or was not created by vfnmkmc.\nDo you want to overwrite it? [y/N] ";
             my $overwrite = <STDIN>;
             chomp $overwrite;
             exit 0 if $overwrite ne "y";
@@ -543,7 +544,11 @@ sub loadConfig {
                     ${$configTranslation{$option}} = $args;
                 }
             } elsif ($line) {   # ignore empty lines
-                die "Unknown option in the config file \"$_[0]\": \"$option\"\n";
+
+               # keep extra variables from mc
+               ${$configTranslation{$option}} = $args;
+
+               #die "Unknown option in the config file \"$_[0]\": \"$option\"\n";
             }
         }
         close($file);
@@ -557,7 +562,7 @@ sub handleLegacyConfig {
                 $std = 'c++11' and 0; # Short-circuit logic magic if
         } @cflags;
     } elsif ( compareVersions($configVer, $main::VERSION) == 1 ) {
-        warn "Config file version ($configVer) newer than vfnmake $main::VERSION";
+        warn "Config file version ($configVer) newer than vfnmkmc $main::VERSION";
     }
 
     $configVer = $main::VERSION;
