@@ -150,9 +150,9 @@ unless ($src) {
 $binDir         ||= ".";
 $objsDir        ||= "objs";
 @dcflags          = qw(-DDEBUG -g3 -Wall -Wextra) unless @dcflags;
-$quiet          //= 1;
-$stdout         //= 0;
-$force_generate //= 0;
+$quiet            = 0 unless defined $quiet;
+$stdout           = 0 unless defined $stdout;
+$force_generate   = 0 unless defined $force_generate;
 $O                = 2 if $O       eq "";
 $echo             = 0 if $echo    eq "";
 $legacy           = 0 if $legacy  eq "";
