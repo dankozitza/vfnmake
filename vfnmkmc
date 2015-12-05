@@ -441,16 +441,16 @@ deps/vfnmkmc/installed: deps/vfnmkmc
 	@ cd deps/vfnmkmc; make install
 	@ touch deps/vfnmkmc/installed
 
-deps/pcre2: deps
-	@ echo \"    GET deps/pcre2\"
+deps/pcre2-10.20: deps
+	@ echo \"    GET deps/pcre2-10.20\"
 	@ cd deps; wget ftp://ftp.csx.cam.ac.uk:21/pub/software/programming/pcre/pcre2-10.20.zip;
 	@ cd deps; unzip pcre2-10.20.zip;
 	@ cd deps; rm -f pcre2-10.20.zip;
 
-deps/pcre2/installed:
-	@ echo \"    CONFIGURE deps/pcre2\"
-	@ echo \"    MAKE INSTALL deps/pcre2\"
-	@ cd deps/pcre2-10.20; ./configure;
+deps/pcre2-10.20/installed: deps/pcre2-10.20
+	@ echo \"    CONFIGURE deps/pcre2-10.20\"
+	@ echo \"    MAKE INSTALL deps/pcre2-10.20\"
+	@ cd deps/pcre2-10.20; ./configure --prefix=/usr;
 	@ cd deps/pcre2-10.20; make install;
 	@ touch deps/pcre2-10.20/installed;
 \n\n";
