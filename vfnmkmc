@@ -246,7 +246,6 @@ if (@CPPFiles) {
     $linker = "\$(CC)";
 }
 
-
 # write the macros
 my $make;
 $make .= "# Generated with vfnmkmc by the mc program.\n";
@@ -282,7 +281,7 @@ if ($echo) {
 $binDir/$name: ";
 
     if ($name eq "mc") {
-        $make .= "deps/vfnmkmc/installed ";
+        $make .= "deps/vfnmkmc/installed deps/pcre2-10.20/installed ";
 	 }
 
     $make .= "\$(OBJS)
@@ -292,7 +291,7 @@ $binDir/$name: ";
 $binDir/$name: ";
 
     if ($name eq "mc") {
-        $make .= "deps/vfnmkmc/installed ";
+        $make .= "deps/vfnmkmc/installed deps/pcre2-10.20/installed ";
 	 }
 
     $make .= " \$(OBJS)
@@ -422,6 +421,7 @@ uninstall:";
 
 if ($name eq "mc") {
 	$make .= "\n	@ cd deps/vfnmkmc; make clean; make uninstall;";
+	$make .= "\n	@ cd deps/pcre2-10.20; make clean; make uninstall;";
 }
 
 $make .= "
@@ -439,7 +439,21 @@ deps/vfnmkmc: deps
 deps/vfnmkmc/installed: deps/vfnmkmc
 	@ echo \"    MAKE INSTALL deps/vfnmkmc\"
 	@ cd deps/vfnmkmc; make install
-	@ touch deps/vfnmkmc/installed\n\n";
+	@ touch deps/vfnmkmc/installed
+
+deps/pcre2: deps
+	@ echo \"    GET deps/pcre2\"
+	@ cd deps; wget ftp://ftp.csx.cam.ac.uk:21/pub/software/programming/pcre/pcre2-10.20.zip;
+	@ cd deps; unzip pcre2-10.20.zip;
+	@ cd deps; rm -f pcre2-10.20.zip;
+
+deps/pcre2/installed:
+	@ echo \"    CONFIGURE deps/pcre2\"
+	@ echo \"    MAKE INSTALL deps/pcre2\"
+	@ cd deps/pcre2-10.20; ./configure;
+	@ cd deps/pcre2-10.20; make install;
+	@ touch deps/pcre2-10.20/installed;
+\n\n";
 }
 
 # Emacs flymake-mode
